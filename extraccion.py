@@ -44,7 +44,7 @@ def process_extracted_files(extract_path):
         print(f"Verificando archivo: {filename}")
         if filename.endswith('.geojson'):
             geojson_path = os.path.join(extract_path, filename)
-            print(f"Procesando archivo GeoJSON: {geojson_path}")
+            print(f"Procesando archivo GeoJSON: {aemet_alerts.geojson}")
             
             # Verificar si el archivo geojson ya existe
             geojson_file = os.path.join(extract_path, 'aemet_alerts.geojson')
