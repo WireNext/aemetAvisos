@@ -10,6 +10,11 @@ def download_and_extract(url, extract_path):
     if response.status_code == 200:
         print("Archivo descargado exitosamente.")
         
+        # Verificar si el archivo descargado es diferente del existente (si existe)
+        if os.path.exists("downloaded_file"):
+            os.remove("downloaded_file")
+            print("Archivo anterior eliminado.")
+
         # Guardar el contenido en un archivo para depuración
         with open("downloaded_file", "wb") as f:
             f.write(response.content)
@@ -41,8 +46,13 @@ def process_extracted_files(extract_path):
             geojson_path = os.path.join(extract_path, filename)
             print(f"Procesando archivo GeoJSON: {geojson_path}")
             
-            # Guardar el archivo GeoJSON directamente en el directorio deseado
+            # Verificar si el archivo geojson ya existe
             geojson_file = os.path.join(extract_path, 'aemet_alerts.geojson')
+            if os.path.exists(geojson_file):
+                os.remove(geojson_file)
+                print("Archivo geojson anterior eliminado.")
+            
+            # Guardar el archivo GeoJSON directamente en el directorio deseado
             os.rename(geojson_path, geojson_file)  # Cambiar el nombre del archivo si es necesario
             print(f"Archivo GeoJSON guardado como: {geojson_file}")
         else:
