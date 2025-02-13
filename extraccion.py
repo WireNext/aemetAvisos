@@ -2,6 +2,7 @@ import requests
 import tarfile
 from io import BytesIO
 import os
+import shutil
 
 def download_and_extract(url, extract_path):
     """Descarga el archivo TAR desde el URL y lo extrae en el directorio especificado."""
@@ -11,15 +12,16 @@ def download_and_extract(url, extract_path):
         print("Archivo descargado exitosamente.")
         
         # Verificar si el archivo descargado es diferente del existente (si existe)
-        if os.path.exists("downloaded_file"):
-            os.remove("downloaded_file")
+        download_file_path = "downloaded_file"
+        if os.path.exists(download_file_path):
+            os.remove(download_file_path)
             print("Archivo anterior eliminado.")
-
-        # Guardar el contenido en un archivo para depuración
-        with open("downloaded_file", "wb") as f:
-            f.write(response.content)
-        print("Archivo guardado como 'downloaded_file'.")
         
+        # Guardar el contenido en un archivo para depuración
+        with open(download_file_path, "wb") as f:
+            f.write(response.content)
+        print(f"Archivo guardado como '{download_file_path}'.")
+
         # Verificar si la respuesta contiene redirecciones
         if response.history:
             print(f"Redirección detectada: {response.history}")
@@ -44,16 +46,17 @@ def process_extracted_files(extract_path):
         print(f"Verificando archivo: {filename}")
         if filename.endswith('.geojson'):
             geojson_path = os.path.join(extract_path, filename)
-            print(f"Procesando archivo GeoJSON: {aemet_alerts.geojson}")
+            print(f"Procesando archivo GeoJSON: {geojson_path}")
             
             # Verificar si el archivo geojson ya existe
             geojson_file = os.path.join(extract_path, 'aemet_alerts.geojson')
             if os.path.exists(geojson_file):
+                # Si existe, eliminar el anterior
                 os.remove(geojson_file)
-                print("Archivo geojson anterior eliminado.")
+                print(f"Archivo geojson anterior eliminado: {geojson_file}")
             
             # Guardar el archivo GeoJSON directamente en el directorio deseado
-            os.rename(geojson_path, geojson_file)  # Cambiar el nombre del archivo si es necesario
+            shutil.move(geojson_path, geojson_file)  # Cambiar el nombre del archivo si es necesario
             print(f"Archivo GeoJSON guardado como: {geojson_file}")
         else:
             print(f"El archivo {filename} no es un archivo .geojson")
