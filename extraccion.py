@@ -20,7 +20,10 @@ def download_and_extract(url, extract_path):
     if response.status_code == 200:
         with tarfile.open(fileobj=BytesIO(response.content), mode='r') as tar:
             tar.extractall(path=extract_path)
-        print(f"Archivos extraídos en {extract_path}")
+            # Listar los archivos extraídos
+            print(f"Archivos extraídos en {extract_path}:")
+            for member in tar.getmembers():
+                print(member.name)  # Imprime los nombres de los archivos extraídos
     else:
         print("Error al descargar el archivo TAR")
 
@@ -71,7 +74,7 @@ def xml_to_geojson(xml_folder, output_file):
         print(f"GeoJSON generado correctamente en {output_file}")
 
 def main():
-    api_key = "tu_api_key_aemet"
+    api_key = "TU_API_KEY"  # Sustituye con tu API Key
     extract_path = "aemet_data"
     output_file = "aemet_alerts.geojson"
     
