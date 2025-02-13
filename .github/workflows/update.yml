@@ -23,13 +23,11 @@ jobs:
       - name: Run script
         run: python extraccion.py
 
-      # List files to ensure the GeoJSON exists
-      - name: List files in the directory
+      - name: List files to check GeoJSON existence
         run: |
-          echo "Listing files in the directory"
+          echo "Listing files in the repository:"
           ls -l
 
-      # Add and commit only if the file exists
       - name: Check if GeoJSON file exists and commit changes
         run: |
           if [ -f "aemet_alerts.geojson" ]; then
@@ -42,4 +40,4 @@ jobs:
           else
             echo "GeoJSON file does not exist."
             exit 1
-          fi  # Asegúrate de cerrar el bloque if
+          fi
