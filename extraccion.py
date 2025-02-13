@@ -1,73 +1,23 @@
 import requests
 import tarfile
 import os
-import xml.etree.ElementTree as ET
-import json
 from io import BytesIO
 
-def get_latest_tar_url(api_key):
-    aemet_api_url = "https://opendata.aemet.es/opendata/api/avisos_cap/ultimoelaborado/area/esp?api_key=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmdlbHRvcm1vc3NwYW1AZ21haWwuY29tIiwianRpIjoiYjk0MDEzN2MtOGM2OC00NDM5LWFlOWMtMmU0MjZkZTliZjI5IiwiaXNzIjoiQUVNRVQiLCJpYXQiOjE3MzcwNDM3NTQsInVzZXJJZCI6ImI5NDAxMzdjLThjNjgtNDQzOS1hZTljLTJlNDI2ZGU5YmYyOSIsInJvbGUiOiIifQ.rpoojOTyaen6x32XLnuvFZajyVMrYpBMuDfTCDTOrlg"
-    response = requests.get(aemet_api_url, params={"api_key": api_key})
-    if response.status_code == 200:
-        data = response.json()
-        return data.get("datos", None)
-    else:
-        print("Error al obtener la URL del TAR")
-        return None
-
 def download_and_extract(url, extract_path):
+    """Descarga el archivo TAR desde el URL y lo extrae en el directorio especificado."""
     response = requests.get(url, stream=True)
     if response.status_code == 200:
         with tarfile.open(fileobj=BytesIO(response.content), mode='r') as tar:
             tar.extractall(path=extract_path)
+        print("Archivo descargado y extraído correctamente.")
     else:
-        print("Error al descargar el archivo TAR")
-
-def get_style_by_level(level):
-    """Devuelve el estilo correspondiente según el nivel de alerta (verde, amarillo, naranja, rojo)."""
-    if level == "verde":
-        return {
-            "fillOpacity": 0.1,  # Baja opacidad para el relleno
-            "stroke": True,
-            "color": "#00FF00",  # Verde
-            "weight": 2,
-            "fillColor": "#00FF00"
-        }
-    elif level == "amarillo":
-        return {
-            "fillOpacity": 0.3,
-            "stroke": True,
-            "color": "#FFDD00",  # Amarillo
-            "weight": 2,
-            "fillColor": "#FFDD00"
-        }
-    elif level == "naranja":
-        return {
-            "fillOpacity": 0.5,
-            "stroke": True,
-            "color": "#FF7F00",  # Naranja
-            "weight": 2,
-            "fillColor": "#FF7F00"
-        }
-    elif level == "rojo":
-        return {
-            "fillOpacity": 0.7,
-            "stroke": True,
-            "color": "#FF0000",  # Rojo
-            "weight": 2,
-            "fillColor": "#FF0000"
-        }
-    else:
-        # Si no hay alerta
-        return {
-            "fillOpacity": 0,  # No hay relleno
-            "stroke": True,
-            "color": "#000000",  # Negro para los bordes
-            "weight": 2,
-            "fillColor": "#FFFFFF"
-        }
+        print(f"Error al descargar el archivo TAR. Código de estado: {response.status_code}")
 
 def xml_to_geojson(xml_folder, output_file):
+    """Convierte los archivos XML extraídos a GeoJSON con estilos basados en el nivel de alerta."""
+    import xml.etree.ElementTree as ET
+    import json
+
     features = []
     for filename in os.listdir(xml_folder):
         if filename.endswith(".xml"):
@@ -117,20 +67,64 @@ def xml_to_geojson(xml_folder, output_file):
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(geojson, f, ensure_ascii=False, indent=4)
 
-def main():
-    api_key = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmdlbHRvcm1vc3NwYW1AZ21haWwuY29tIiwianRpIjoiYjk0MDEzN2MtOGM2OC00NDM5LWFlOWMtMmU0MjZkZTliZjI5IiwiaXNzIjoiQUVNRVQiLCJpYXQiOjE3MzcwNDM3NTQsInVzZXJJZCI6ImI5NDAxMzdjLThjNjgtNDQzOS1hZTljLTJlNDI2ZGU5YmYyOSIsInJvbGUiOiIifQ.rpoojOTyaen6x32XLnuvFZajyVMrYpBMuDfTCDTOrlg"
-    extract_path = "aemet_data"
-    output_file = "aemet_alerts.geojson"
+def get_style_by_level(level):
+    """Devuelve el estilo correspondiente según el nivel de alerta (verde, amarillo, naranja, rojo)."""
+    if level == "verde":
+        return {
+            "fillOpacity": 0.1,  # Baja opacidad para el relleno
+            "stroke": True,
+            "color": "#00FF00",  # Verde
+            "weight": 2,
+            "fillColor": "#00FF00"
+        }
+    elif level == "amarillo":
+        return {
+            "fillOpacity": 0.3,
+            "stroke": True,
+            "color": "#FFDD00",  # Amarillo
+            "weight": 2,
+            "fillColor": "#FFDD00"
+        }
+    elif level == "naranja":
+        return {
+            "fillOpacity": 0.5,
+            "stroke": True,
+            "color": "#FF7F00",  # Naranja
+            "weight": 2,
+            "fillColor": "#FF7F00"
+        }
+    elif level == "rojo":
+        return {
+            "fillOpacity": 0.7,
+            "stroke": True,
+            "color": "#FF0000",  # Rojo
+            "weight": 2,
+            "fillColor": "#FF0000"
+        }
+    else:
+        # Si no hay alerta
+        return {
+            "fillOpacity": 0,  # No hay relleno
+            "stroke": True,
+            "color": "#000000",  # Negro para los bordes
+            "weight": 2,
+            "fillColor": "#FFFFFF"
+        }
 
-    tar_url = get_latest_tar_url(api_key)
-    if not tar_url:
-        print("No se pudo obtener la URL del TAR")
-        return
+def main():
+    # URL directa del archivo TAR
+    url = "https://opendata.aemet.es/opendata/sh/badff987Z_CAP_C_LEMM_20250212225001_AFAE"
+    
+    # Directorio para extraer los archivos
+    extract_path = "aemet_data"
+    
+    # Archivo de salida para el GeoJSON
+    output_file = "aemet_alerts.geojson"
 
     if not os.path.exists(extract_path):
         os.makedirs(extract_path)
 
-    download_and_extract(tar_url, extract_path)
+    download_and_extract(url, extract_path)
     xml_to_geojson(extract_path, output_file)
 
 if __name__ == "__main__":
