@@ -23,19 +23,22 @@ jobs:
       - name: Run script
         run: python extraccion.py
 
-      - name: Verify geojson file exists
+      # List files in the directory to check if GeoJSON file exists
+      - name: List files in the directory
+        run: |
+          echo "Listing files in the directory"
+          ls -l
+
+      # Verify if the file exists and then commit
+      - name: Check if GeoJSON file exists and commit changes
         run: |
           if [ -f "aemet_alerts.geojson" ]; then
-            echo "GeoJSON file exists."
+            echo "GeoJSON file exists, proceeding with commit."
+            git config --global user.name "github-actions"
+            git config --global user.email "github-actions@github.com"
+            git add aemet_alerts.geojson
+            git commit -m "Update AEMET alerts data" || exit 0
+            git push
           else
             echo "GeoJSON file does not exist."
             exit 1
-          fi
-
-      - name: Commit and push changes
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add aemet_alerts.geojson
-          git commit -m "Update AEMET alerts data" || exit 0
-          git push
