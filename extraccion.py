@@ -6,7 +6,7 @@ import json
 from io import BytesIO
 
 def get_latest_tar_url(api_key):
-    aemet_api_url = "https://opendata.aemet.es/opendata/api/avisos_cap/ultimoelaborado/area/esp?api_key=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmdlbHRvcm1vc3NwYW1AZ21haWwuY29tIiwianRpIjoiYjk0MDEzN2MtOGM2OC00NDM5LWFlOWMtMmU0MjZkZTliZjI5IiwiaXNzIjoiQUVNRVQiLCJpYXQiOjE3MzcwNDM3NTQsInVzZXJJZCI6ImI5NDAxMzdjLThjNjgtNDQzOS1hZTljLTJlNDI2ZGU5YmYyOSIsInJvbGUiOiIifQ.rpoojOTyaen6x32XLnuvFZajyVMrYpBMuDfTCDTOrlg"
+    aemet_api_url = "https://opendata.aemet.es/opendata/api/avisos_cap/ultimoelaborado/area/esp"
     response = requests.get(aemet_api_url, params={"api_key": api_key})
     if response.status_code == 200:
         data = response.json()
@@ -20,20 +20,14 @@ def download_and_extract(url, extract_path):
     if response.status_code == 200:
         with tarfile.open(fileobj=BytesIO(response.content), mode='r') as tar:
             tar.extractall(path=extract_path)
-            # Listar los archivos extraídos para verificar
-            print(f"Archivos extraídos en {extract_path}:")
-            for member in tar.getmembers():
-                print(member.name)
     else:
         print("Error al descargar el archivo TAR")
 
 def xml_to_geojson(xml_folder, output_file):
     features = []
-    print(f"Comenzando a procesar los archivos XML en {xml_folder}")
     for filename in os.listdir(xml_folder):
         if filename.endswith(".xml"):
             file_path = os.path.join(xml_folder, filename)
-            print(f"Procesando archivo: {file_path}")  # Depuración: Ver qué archivo se está procesando
             tree = ET.parse(file_path)
             root = tree.getroot()
             namespace = {'cap': 'urn:oasis:names:tc:emergency:cap:1.2'}
@@ -49,11 +43,14 @@ def xml_to_geojson(xml_folder, output_file):
                     area_desc = area.find("cap:areaDesc", namespace).text if area.find("cap:areaDesc", namespace) is not None else ""
                     polygon_text = area.find("cap:polygon", namespace).text if area.find("cap:polygon", namespace) is not None else ""
                     
-                    # Verificar si la información está siendo extraída correctamente
-                    print(f"Event: {event}, Level: {level}, Area: {area_desc}, Polygon: {polygon_text}")
-
                     if polygon_text:
+                        # Convertir las coordenadas
                         coordinates = [list(map(float, coord.split(","))) for coord in polygon_text.split(" ")]
+                        
+                        # Si el formato es Latitud, Longitud, invertir las coordenadas
+                        for coord in coordinates:
+                            coord[0], coord[1] = coord[1], coord[0]  # Intercambiar Latitud y Longitud
+                        
                         feature = {
                             "type": "Feature",
                             "geometry": {
@@ -68,18 +65,12 @@ def xml_to_geojson(xml_folder, output_file):
                         }
                         features.append(feature)
     
-    print(f"Total de features procesados: {len(features)}")  # Depuración: Ver cuántos features se procesaron
-
-    if features:  # Si hay features, se escribe el archivo GeoJSON
-        geojson = {"type": "FeatureCollection", "features": features}
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(geojson, f, ensure_ascii=False, indent=4)
-        print(f"GeoJSON generado correctamente en {output_file}")
-    else:
-        print("No se generaron features, el archivo GeoJSON permanecerá vacío.")
+    geojson = {"type": "FeatureCollection", "features": features}
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(geojson, f, ensure_ascii=False, indent=4)
 
 def main():
-    api_key = "TU_API_KEY"  # Sustituye con tu API Key
+    api_key = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmdlbHRvcm1vc3NwYW1AZ21haWwuY29tIiwianRpIjoiYjk0MDEzN2MtOGM2OC00NDM5LWFlOWMtMmU0MjZkZTliZjI5IiwiaXNzIjoiQUVNRVQiLCJpYXQiOjE3MzcwNDM3NTQsInVzZXJJZCI6ImI5NDAxMzdjLThjNjgtNDQzOS1hZTljLTJlNDI2ZGU5YmYyOSIsInJvbGUiOiIifQ.rpoojOTyaen6x32XLnuvFZajyVMrYpBMuDfTCDTOrlg"
     extract_path = "aemet_data"
     output_file = "aemet_alerts.geojson"
     
