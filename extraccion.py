@@ -56,7 +56,7 @@ def process_extracted_files(extract_path):
                 geojson_data.features.append(geojson_feature)
 
             # Guardar el archivo geojson
-            geojson_file = os.path.join(extract_path, 'output.geojson')
+            geojson_file = os.path.join(extract_path, 'aemet_alerts.geojson')
             with open(geojson_file, 'w') as f:
                 geojson.dump(geojson_data, f)
             print(f"Archivo geojson generado en: {geojson_file}")
