@@ -60,6 +60,8 @@ def xml_to_geojson(xml_folder, output_file):
                         features.append(feature)
     
     geojson = {"type": "FeatureCollection", "features": features}
+    
+    print(f"GeoJSON file is being written to: {output_file}")
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(geojson, f, ensure_ascii=False, indent=4)
 
@@ -68,15 +70,20 @@ def main():
     extract_path = "aemet_data"
     output_file = "aemet_alerts.geojson"
     
+    # Crear el directorio si no existe
+    if not os.path.exists(extract_path):
+        os.makedirs(extract_path)
+    
+    # Obtener la URL del TAR
     tar_url = get_latest_tar_url(api_key)
     if not tar_url:
         print("No se pudo obtener la URL del TAR")
         return
     
-    if not os.path.exists(extract_path):
-        os.makedirs(extract_path)
-    
+    # Descargar y extraer los datos
     download_and_extract(tar_url, extract_path)
+    
+    # Convertir los archivos XML a GeoJSON
     xml_to_geojson(extract_path, output_file)
 
 if __name__ == "__main__":
