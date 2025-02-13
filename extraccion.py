@@ -10,15 +10,9 @@ def get_latest_tar_url(api_key):
     response = requests.get(aemet_api_url, params={"api_key": api_key})
     if response.status_code == 200:
         data = response.json()
-        tar_url = data.get("datos", None)
-        if tar_url:
-            print(f"Found TAR URL: {tar_url}")
-            return tar_url
-        else:
-            print("No TAR URL found in the response.")
-            return None
+        return data.get("datos", None)
     else:
-        print(f"Error al obtener la URL del TAR: {response.status_code}")
+        print("Error al obtener la URL del TAR")
         return None
 
 def download_and_extract(url, extract_path):
@@ -26,7 +20,7 @@ def download_and_extract(url, extract_path):
     if response.status_code == 200:
         with tarfile.open(fileobj=BytesIO(response.content), mode='r') as tar:
             tar.extractall(path=extract_path)
-            print(f"Extracted files to {extract_path}")
+        print(f"Archivos extraídos en {extract_path}")
     else:
         print("Error al descargar el archivo TAR")
 
@@ -35,6 +29,7 @@ def xml_to_geojson(xml_folder, output_file):
     for filename in os.listdir(xml_folder):
         if filename.endswith(".xml"):
             file_path = os.path.join(xml_folder, filename)
+            print(f"Procesando archivo: {file_path}")  # Depuración: Ver qué archivo se está procesando
             tree = ET.parse(file_path)
             root = tree.getroot()
             namespace = {'cap': 'urn:oasis:names:tc:emergency:cap:1.2'}
@@ -50,6 +45,9 @@ def xml_to_geojson(xml_folder, output_file):
                     area_desc = area.find("cap:areaDesc", namespace).text if area.find("cap:areaDesc", namespace) is not None else ""
                     polygon_text = area.find("cap:polygon", namespace).text if area.find("cap:polygon", namespace) is not None else ""
                     
+                    # Depuración: Verificar si se encuentra la información necesaria
+                    print(f"Event: {event}, Level: {level}, Area: {area_desc}, Polygon: {polygon_text}")
+
                     if polygon_text:
                         coordinates = [list(map(float, coord.split(","))) for coord in polygon_text.split(" ")]
                         feature = {
@@ -67,14 +65,13 @@ def xml_to_geojson(xml_folder, output_file):
                         features.append(feature)
     
     geojson = {"type": "FeatureCollection", "features": features}
-    
-    print(f"GeoJSON file is being written to: {output_file}")
+    print(f"Total de features procesados: {len(features)}")  # Depuración: Ver cuántos features se procesaron
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(geojson, f, ensure_ascii=False, indent=4)
-        print(f"GeoJSON file written successfully at {output_file}")
+        print(f"GeoJSON generado correctamente en {output_file}")
 
 def main():
-    api_key = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmdlbHRvcm1vc3NwYW1AZ21haWwuY29tIiwianRpIjoiYjk0MDEzN2MtOGM2OC00NDM5LWFlOWMtMmU0MjZkZTliZjI5IiwiaXNzIjoiQUVNRVQiLCJpYXQiOjE3MzcwNDM3NTQsInVzZXJJZCI6ImI5NDAxMzdjLThjNjgtNDQzOS1hZTljLTJlNDI2ZGU5YmYyOSIsInJvbGUiOiIifQ.rpoojOTyaen6x32XLnuvFZajyVMrYpBMuDfTCDTOrlg"
+    api_key = "tu_api_key_aemet"
     extract_path = "aemet_data"
     output_file = "aemet_alerts.geojson"
     
