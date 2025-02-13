@@ -23,6 +23,15 @@ jobs:
       - name: Run script
         run: python extraccion.py
 
+      - name: Verify geojson file exists
+        run: |
+          if [ -f "aemet_alerts.geojson" ]; then
+            echo "GeoJSON file exists."
+          else
+            echo "GeoJSON file does not exist."
+            exit 1
+          fi
+
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions"
