@@ -23,6 +23,50 @@ def download_and_extract(url, extract_path):
     else:
         print("Error al descargar el archivo TAR")
 
+def get_style_by_level(level):
+    """Devuelve el estilo correspondiente según el nivel de alerta (verde, amarillo, naranja, rojo)."""
+    if level == "verde":
+        return {
+            "fillOpacity": 0.1,  # Baja opacidad para el relleno
+            "stroke": True,
+            "color": "#00FF00",  # Verde
+            "weight": 2,
+            "fillColor": "#00FF00"
+        }
+    elif level == "amarillo":
+        return {
+            "fillOpacity": 0.3,
+            "stroke": True,
+            "color": "#FFDD00",  # Amarillo
+            "weight": 2,
+            "fillColor": "#FFDD00"
+        }
+    elif level == "naranja":
+        return {
+            "fillOpacity": 0.5,
+            "stroke": True,
+            "color": "#FF7F00",  # Naranja
+            "weight": 2,
+            "fillColor": "#FF7F00"
+        }
+    elif level == "rojo":
+        return {
+            "fillOpacity": 0.7,
+            "stroke": True,
+            "color": "#FF0000",  # Rojo
+            "weight": 2,
+            "fillColor": "#FF0000"
+        }
+    else:
+        # Si no hay alerta
+        return {
+            "fillOpacity": 0,  # No hay relleno
+            "stroke": True,
+            "color": "#000000",  # Negro para los bordes
+            "weight": 2,
+            "fillColor": "#FFFFFF"
+        }
+
 def xml_to_geojson(xml_folder, output_file):
     features = []
     for filename in os.listdir(xml_folder):
@@ -51,6 +95,9 @@ def xml_to_geojson(xml_folder, output_file):
                         for coord in coordinates:
                             coord[0], coord[1] = coord[1], coord[0]  # Intercambiar Latitud y Longitud
                         
+                        # Obtener el estilo según el nivel de alerta
+                        style = get_style_by_level(level)
+                        
                         feature = {
                             "type": "Feature",
                             "geometry": {
@@ -61,7 +108,8 @@ def xml_to_geojson(xml_folder, output_file):
                                 "event": event,
                                 "area": area_desc,
                                 "level": level
-                            }
+                            },
+                            "style": style  # Añadir estilo
                         }
                         features.append(feature)
     
