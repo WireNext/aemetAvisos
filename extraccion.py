@@ -108,7 +108,7 @@ def xml_to_geojson(xml_folder, output_file):
                                 "event": event,
                                 "area": area_desc,
                                 "level": level,
-                                "style": style  # Añadir estilo
+                                "style": style  # Añadir estilo dentro de las propiedades
                             }
                         }
                         features.append(feature)
