@@ -22,6 +22,7 @@ def download_and_extract(url, extract_path):
         # Intentar extraer el archivo
         try:
             with tarfile.open(fileobj=BytesIO(response.content), mode='r') as tar:
+                print(f"Contenido del archivo TAR: {tar.getnames()}")
                 tar.extractall(path=extract_path)
             print(f"Archivo TAR extraído correctamente en {extract_path}.")
         except Exception as e:
@@ -34,32 +35,42 @@ def process_extracted_files(extract_path):
     # Aquí asumimos que dentro de la carpeta extraída hay un archivo JSON
     # Cambiar el nombre del archivo según lo que se extraiga
     extracted_files = os.listdir(extract_path)
+    print(f"Archivos extraídos: {extracted_files}")
+
     for filename in extracted_files:
         if filename.endswith('.json'):
             json_path = os.path.join(extract_path, filename)
             print(f"Procesando archivo JSON: {json_path}")
             
             # Leer el archivo JSON
-            with open(json_path, 'r') as f:
-                data = json.load(f)
+            with open(aemet_alerts.geojson, 'r') as f:
+                try:
+                    data = json.load(f)
+                    print(f"Datos cargados correctamente del archivo JSON.")
+                except json.JSONDecodeError as e:
+                    print(f"Error al decodificar el JSON: {e}")
+                    continue
 
             # Crear un archivo GeoJSON
             geojson_data = geojson.FeatureCollection([])
 
             # Procesar los datos para convertirlos en formato geojson
-            # Este paso depende de la estructura de tu archivo JSON
-            # Por ejemplo, si tienes coordenadas en los datos:
-            for feature in data.get('features', []):  # Cambia según la estructura de tu archivo
-                geometry = feature.get('geometry', {})
-                properties = feature.get('properties', {})
-                geojson_feature = geojson.Feature(geometry=geometry, properties=properties)
-                geojson_data.features.append(geojson_feature)
+            # Esto depende de la estructura del archivo JSON
+            # Aquí asumimos que los datos tienen una lista de características (features)
+            if 'features' in data:
+                for feature in data['features']:  # Cambia según la estructura de tu archivo
+                    geometry = feature.get('geometry', {})
+                    properties = feature.get('properties', {})
+                    geojson_feature = geojson.Feature(geometry=geometry, properties=properties)
+                    geojson_data.features.append(geojson_feature)
 
-            # Guardar el archivo geojson
-            geojson_file = os.path.join(extract_path, 'aemet_alerts.geojson')
-            with open(geojson_file, 'w') as f:
-                geojson.dump(geojson_data, f)
-            print(f"Archivo geojson generado en: {geojson_file}")
+                # Guardar el archivo geojson
+                geojson_file = os.path.join(extract_path, 'aemet_alerts.geojson')
+                with open(geojson_file, 'w') as f:
+                    geojson.dump(geojson_data, f)
+                print(f"Archivo geojson generado en: {geojson_file}")
+            else:
+                print("No se encontraron 'features' en los datos JSON.")
 
 def main():
     url = "https://opendata.aemet.es/opendata/sh/badff987Z_CAP_C_LEMM_20250212225001_AFAE"
