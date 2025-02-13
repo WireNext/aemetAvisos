@@ -6,7 +6,7 @@ import json
 from io import BytesIO
 
 def get_latest_tar_url(api_key):
-    aemet_api_url = "https://opendata.aemet.es/opendata/api/avisos_cap/ultimoelaborado/area/esp"
+    aemet_api_url = "https://opendata.aemet.es/opendata/api/avisos_cap/ultimoelaborado/area/esp?api_key=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmdlbHRvcm1vc3NwYW1AZ21haWwuY29tIiwianRpIjoiYjk0MDEzN2MtOGM2OC00NDM5LWFlOWMtMmU0MjZkZTliZjI5IiwiaXNzIjoiQUVNRVQiLCJpYXQiOjE3MzcwNDM3NTQsInVzZXJJZCI6ImI5NDAxMzdjLThjNjgtNDQzOS1hZTljLTJlNDI2ZGU5YmYyOSIsInJvbGUiOiIifQ.rpoojOTyaen6x32XLnuvFZajyVMrYpBMuDfTCDTOrlg"
     response = requests.get(aemet_api_url, params={"api_key": api_key})
     if response.status_code == 200:
         data = response.json()
