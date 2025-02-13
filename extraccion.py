@@ -2,6 +2,8 @@ import requests
 import tarfile
 import os
 from io import BytesIO
+import xml.etree.ElementTree as ET
+import json
 
 def download_and_extract(url, extract_path):
     """Descarga el archivo TAR desde el URL y lo extrae en el directorio especificado."""
@@ -15,13 +17,11 @@ def download_and_extract(url, extract_path):
 
 def xml_to_geojson(xml_folder, output_file):
     """Convierte los archivos XML extraídos a GeoJSON con estilos basados en el nivel de alerta."""
-    import xml.etree.ElementTree as ET
-    import json
-
     features = []
     for filename in os.listdir(xml_folder):
         if filename.endswith(".xml"):
             file_path = os.path.join(xml_folder, filename)
+            print(f"Procesando archivo XML: {file_path}")  # Verificar qué archivo se está procesando
             tree = ET.parse(file_path)
             root = tree.getroot()
             namespace = {'cap': 'urn:oasis:names:tc:emergency:cap:1.2'}
@@ -63,9 +63,13 @@ def xml_to_geojson(xml_folder, output_file):
                         }
                         features.append(feature)
 
-    geojson = {"type": "FeatureCollection", "features": features}
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(geojson, f, ensure_ascii=False, indent=4)
+    if features:
+        geojson = {"type": "FeatureCollection", "features": features}
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(geojson, f, ensure_ascii=False, indent=4)
+        print(f"GeoJSON generado correctamente: {output_file}")
+    else:
+        print("No se encontraron características en los archivos XML.")
 
 def get_style_by_level(level):
     """Devuelve el estilo correspondiente según el nivel de alerta (verde, amarillo, naranja, rojo)."""
