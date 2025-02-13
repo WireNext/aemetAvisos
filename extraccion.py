@@ -75,29 +75,29 @@ def xml_to_geojson(xml_folder, output_file):
             tree = ET.parse(file_path)
             root = tree.getroot()
             namespace = {'cap': 'urn:oasis:names:tc:emergency:cap:1.2'}
-            
+
             for info in root.findall("cap:info", namespace):
                 event = info.find("cap:event", namespace).text if info.find("cap:event", namespace) is not None else ""
                 level = ""
                 for param in info.findall("cap:parameter", namespace):
                     if param.find("cap:valueName", namespace).text == "AEMET-Meteoalerta nivel":
                         level = param.find("cap:value", namespace).text
-                
+
                 for area in info.findall("cap:area", namespace):
                     area_desc = area.find("cap:areaDesc", namespace).text if area.find("cap:areaDesc", namespace) is not None else ""
                     polygon_text = area.find("cap:polygon", namespace).text if area.find("cap:polygon", namespace) is not None else ""
-                    
+
                     if polygon_text:
                         # Convertir las coordenadas
                         coordinates = [list(map(float, coord.split(","))) for coord in polygon_text.split(" ")]
-                        
+
                         # Si el formato es Latitud, Longitud, invertir las coordenadas
                         for coord in coordinates:
                             coord[0], coord[1] = coord[1], coord[0]  # Intercambiar Latitud y Longitud
-                        
+
                         # Obtener el estilo según el nivel de alerta
                         style = get_style_by_level(level)
-                        
+
                         feature = {
                             "type": "Feature",
                             "geometry": {
@@ -107,12 +107,12 @@ def xml_to_geojson(xml_folder, output_file):
                             "properties": {
                                 "event": event,
                                 "area": area_desc,
-                                "level": level,
-                                "style": style  # Añadir estilo dentro de las propiedades
-                            }
+                                "level": level
+                            },
+                            "style": style  # Añadir estilo
                         }
                         features.append(feature)
-    
+
     geojson = {"type": "FeatureCollection", "features": features}
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(geojson, f, ensure_ascii=False, indent=4)
@@ -121,15 +121,15 @@ def main():
     api_key = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmdlbHRvcm1vc3NwYW1AZ21haWwuY29tIiwianRpIjoiYjk0MDEzN2MtOGM2OC00NDM5LWFlOWMtMmU0MjZkZTliZjI5IiwiaXNzIjoiQUVNRVQiLCJpYXQiOjE3MzcwNDM3NTQsInVzZXJJZCI6ImI5NDAxMzdjLThjNjgtNDQzOS1hZTljLTJlNDI2ZGU5YmYyOSIsInJvbGUiOiIifQ.rpoojOTyaen6x32XLnuvFZajyVMrYpBMuDfTCDTOrlg"
     extract_path = "aemet_data"
     output_file = "aemet_alerts.geojson"
-    
+
     tar_url = get_latest_tar_url(api_key)
     if not tar_url:
         print("No se pudo obtener la URL del TAR")
         return
-    
+
     if not os.path.exists(extract_path):
         os.makedirs(extract_path)
-    
+
     download_and_extract(tar_url, extract_path)
     xml_to_geojson(extract_path, output_file)
 
