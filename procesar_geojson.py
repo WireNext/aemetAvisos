@@ -15,8 +15,25 @@ TAR_GZ = "avisos.tar.gz"
 CARPETA_TEMP = "geojson_temp"
 SALIDA_GEOJSON = "avisos_espana.geojson"
 
-# Mapeo de colores por nivel de aviso
-COLOR_MAP = {1: "yellow", 2: "orange", 3: "red"}
+# Definir colores según el nivel de aviso
+COLORS = {
+    1: "#FFFF00",  # Amarillo
+    2: "#FFA500",  # Naranja
+    3: "#FF0000"   # Rojo
+}
+
+# Color por defecto si el nivel no está definido o es desconocido
+DEFAULT_COLOR = "#008000"  # Verde ("green4")
+
+# Agregar estilo a cada Feature
+for feature in geojson_data["features"]:
+    nivel_aviso = feature["properties"].get("nivel")  # Puede ser None si no está definido
+    feature["properties"]["_umap_options"] = {
+        "color": COLORS.get(nivel_aviso, DEFAULT_COLOR),  # Verde si no lo encuentra
+        "weight": 2,
+        "opacity": 0.8
+    }
+
 
 def descargar_tar():
     """Descarga el archivo tar.gz de la URL especificada en `config.json`."""
