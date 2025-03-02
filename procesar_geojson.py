@@ -58,11 +58,20 @@ def procesar_geojson():
 
                         # Corregimos la clave "style" y usamos "_umap_options"
                         feature["properties"]["_umap_options"] = {
-                            "color": color,
-                            "weight": 2,
-                            "opacity": 0.8
+                            "color": color,              # Color del contorno
+                            "weight": 2,                 # Grosor del borde
+                            "opacity": 0.8,              # Opacidad para la visualización
+                            "fillOpacity": 0.3,          # Opacidad del relleno
+                            "dashArray": "5,5",          # Líneas discontinuas en el borde
+                            "fillColor": color,          # Relleno de color
+                            "stroke": True,              # Asegura que tenga borde
+                            "fill": True                 # Asegura que tenga relleno
                         }
-                        
+
+                        # Descripción del aviso
+                        descripcion = feature["properties"].get("Descripcion", "Sin descripción disponible.")
+                        feature["properties"]["description"] = descripcion
+
                         # Eliminamos "style" si existe
                         feature["properties"].pop("style", None)
 
