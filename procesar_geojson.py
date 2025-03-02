@@ -68,15 +68,18 @@ def procesar_geojson():
 
                         geojson_combinado["features"].append(feature)
 
-    # Eliminar el archivo anterior si existe
+    # Verificar si el archivo ya existe y eliminarlo
     if os.path.exists(SALIDA_GEOJSON):
+        print(f"❗ El archivo {SALIDA_GEOJSON} ya existe, se eliminará.")
         os.remove(SALIDA_GEOJSON)
-
+    else:
+        print(f"✅ El archivo {SALIDA_GEOJSON} no existía, se creará uno nuevo.")
+    
     # Guardar el archivo combinado
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
         json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
-
-    print("✅ GeoJSON procesado correctamente y sobrescrito si existía.")
+    
+    print(f"✅ GeoJSON procesado correctamente y guardado en {SALIDA_GEOJSON}.")
 
 if __name__ == "__main__":
     descargar_tar()
