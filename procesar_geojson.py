@@ -53,17 +53,27 @@ def procesar_geojson():
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                     data = json.load(f)
                     for feature in data.get("features", []):
-                        # Usamos Sev_PRP1 para el nivel de alerta
-                        nivel_aviso = feature["properties"].get("Sev_COCO", "")
-                        color = COLORS.get(nivel_aviso, DEFAULT_COLOR)
+                        # Usamos Sev_PRP1 y Sev_COCO para el nivel de alerta
+                        nivel_aviso_prp1 = feature["properties"].get("Sev_PRP1", "")
+                        nivel_aviso_coco = feature["properties"].get("Sev_COCO", "")
+
+                        # Lógica para asignar colores basada en ambos campos
+                        if nivel_aviso_prp1 == "Amarillo" or nivel_aviso_coco == "Amarillo":
+                            color = COLORS["Amarillo"]
+                        elif nivel_aviso_prp1 == "Naranja" or nivel_aviso_coco == "Naranja":
+                            color = COLORS["Naranja"]
+                        elif nivel_aviso_prp1 == "Rojo" or nivel_aviso_coco == "Rojo":
+                            color = COLORS["Rojo"]
+                        else:
+                            color = DEFAULT_COLOR
 
                         # Corregimos la clave "style" y usamos "_umap_options"
                         feature["properties"]["_umap_options"] = {
                             "color": "#000000",      # Color del contorno (negro)
                             "weight": 2,             # Grosor del borde
-                            "opacity": 50,            # Opacidad para la visualización
-                            "fillOpacity": 50,      # Opacidad del relleno
-                            "dashArray": "1",      # Líneas discontinuas en el borde
+                            "opacity": 1,            # Opacidad para la visualización
+                            "fillOpacity": 0.3,      # Opacidad del relleno
+                            "dashArray": "5,5",      # Líneas discontinuas en el borde
                             "fillColor": color,      # Relleno de color
                             "stroke": True,          # Asegura que tenga borde
                             "fill": True             # Asegura que tenga relleno
