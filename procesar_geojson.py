@@ -16,13 +16,13 @@ CARPETA_TEMP = "geojson_temp"
 SALIDA_GEOJSON = "avisos_espana.geojson"
 
 # Definir colores según el nivel de aviso
-COLORS = {
+COLOR_MAP = {
     1: "#FFFF00",  # Amarillo
     2: "#FFA500",  # Naranja
     3: "#FF0000"   # Rojo
 }
 
-# Color por defecto si el nivel no está definido o es desconocido
+# Color por defecto si el nivel no está definido
 DEFAULT_COLOR = "#008000"  # Verde ("green4")
 
 
@@ -35,7 +35,6 @@ def descargar_tar():
         print("✅ Archivo descargado correctamente.")
     else:
         print(f"❌ Error al descargar: {response.status_code}")
-        exit(1)
 
 
 def extraer_tar():
@@ -56,21 +55,29 @@ def procesar_geojson():
             if file.endswith(".geojson"):
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    for feature in data.get("features", []):
-                        nivel_aviso = feature["properties"].get("Av_mayor", 0)  # Extraer nivel de aviso
-                        color = COLORS.get(nivel_aviso, DEFAULT_COLOR)  # Obtener color según el nivel
 
-                        # Asegurar que '_umap_options' existe
+                    for feature in data.get("features", []):
+                        nivel_aviso = feature["properties"].get("Av_mayor", 0)  # Nivel de aviso
+                        color = COLOR_MAP.get(nivel_aviso, DEFAULT_COLOR)  # Asignar color
+
+                        # Depuración: Ver qué nivel y color se asignan
+                        print(f"Nivel aviso: {nivel_aviso} -> Color: {color}")
+
+                        # Agregar estilo para uMap
                         feature["properties"]["_umap_options"] = {
                             "color": color,
+                            "fillColor": color,
                             "weight": 2,
                             "opacity": 0.8
                         }
 
-                        # Agregar la feature corregida al GeoJSON combinado
                         geojson_combinado["features"].append(feature)
 
-    # Guardar el archivo GeoJSON resultante
+    # Eliminar el archivo anterior si existe para evitar datos antiguos
+    if os.path.exists(SALIDA_GEOJSON):
+        os.remove(SALIDA_GEOJSON)
+
+    # Guardar el nuevo archivo con los colores aplicados
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
         json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
 
