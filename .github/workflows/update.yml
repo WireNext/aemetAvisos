@@ -1,42 +1,28 @@
-name: Update AEMET Alerts
+name: Actualizar Avisos AEMET
 
 on:
   schedule:
-    - cron: "*/10 * * * *"
-  workflow_dispatch:
+    - cron: "*/30 * * * *"  # Cada 30 minutos
+  workflow_dispatch:  # Permite ejecutarlo manualmente desde GitHub
 
 jobs:
-  update-data:
+  update:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Clonar el repositorio
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.x"
+      - name: Instalar dependencias
+        run: pip install requests
 
-      - name: Install dependencies
-        run:     pip install -r requirements.txt
-      - name: Run script
-        run: python extraccion.py
+      - name: Ejecutar script de procesamiento
+        run: python procesar_geojson.py
 
-      - name: List files to check GeoJSON existence
+      - name: Commit y push si hay cambios
         run: |
-          echo "Listing files in the repository:"
-          ls -l
-
-      - name: Check if GeoJSON file exists and commit changes
-        run: |
-          if [ -f "aemet_alerts.geojson" ]; then
-            echo "GeoJSON file exists, proceeding with commit."
-            git config --global user.name "github-actions"
-            git config --global user.email "github-actions@github.com"
-            git add aemet_alerts.geojson
-            git commit -m "Update AEMET alerts data" || exit 0
-            git push
-          else
-            echo "GeoJSON file does not exist."
-            exit 1
-          fi  # Aquí cerramos correctamente el bloque if
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "actions@github.com"
+          git add avisos_espana.geojson
+          git commit -m "Actualización automática del GeoJSON" || exit 0
+          git push
