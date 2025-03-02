@@ -16,7 +16,7 @@ CARPETA_TEMP = "geojson_temp"
 SALIDA_GEOJSON = "avisos_espana.geojson"
 
 # Definir colores según el nivel de aviso
-COLOR_MAP = {
+COLORS = {
     1: "#FFFF00",  # Amarillo
     2: "#FFA500",  # Naranja
     3: "#FF0000"   # Rojo
@@ -44,7 +44,7 @@ def extraer_tar():
     print("✅ Archivos extraídos.")
 
 def procesar_geojson():
-    """Combina y colorea los archivos GeoJSON."""
+    """Combina y colorea los archivos GeoJSON con el formato correcto para uMap."""
     geojson_combinado = {"type": "FeatureCollection", "features": []}
 
     for root, _, files in os.walk(CARPETA_TEMP):
@@ -53,16 +53,20 @@ def procesar_geojson():
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                     data = json.load(f)
                     for feature in data.get("features", []):
-                        nivel = feature["properties"].get("Av_mayor")  # Campo con el nivel del aviso
-                        color = COLOR_MAP.get(nivel, DEFAULT_COLOR)  # Asignar color o el predeterminado
-                        
-                        # Aplicar el estilo
-                        feature["properties"]["style"] = {
+                        nivel_aviso = feature["properties"].get("Av_mayor", 0)
+                        color = COLORS.get(nivel_aviso, DEFAULT_COLOR)
+
+                        # Corregimos la clave "style" y usamos "_umap_options"
+                        feature["properties"]["_umap_options"] = {
                             "color": color,
                             "weight": 2,
                             "opacity": 0.8
                         }
                         
+                        # Si existe "style", lo eliminamos para evitar conflictos
+                        if "style" in feature["properties"]:
+                            del feature["properties"]["style"]
+
                         geojson_combinado["features"].append(feature)
 
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
