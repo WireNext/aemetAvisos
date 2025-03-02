@@ -73,7 +73,7 @@ def procesar_geojson():
                             "weight": 2,             # Grosor del borde
                             "opacity": 1,            # Opacidad para la visualización
                             "fillOpacity": 0.3,      # Opacidad del relleno
-                            "dashArray": "5,5",      # Líneas discontinuas en el borde
+                            "dashArray": "1",      # Líneas discontinuas en el borde
                             "fillColor": color,      # Relleno de color
                             "stroke": True,          # Asegura que tenga borde
                             "fill": True             # Asegura que tenga relleno
