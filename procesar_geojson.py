@@ -8,7 +8,7 @@ CONFIG_FILE = "config.json"
 with open(CONFIG_FILE, "r", encoding="utf-8") as f:
     config = json.load(f)
 
-URL_TAR = config["url_tar"]   # La URL del archivo tar.gz
+URL_TAR = config["url_tar"]  # La URL del archivo tar.gz
 
 # Archivos de trabajo
 TAR_GZ = "avisos.tar.gz"
@@ -35,6 +35,7 @@ def descargar_tar():
         print("✅ Archivo descargado correctamente.")
     else:
         print(f"❌ Error al descargar: {response.status_code}")
+        exit(1)
 
 
 def extraer_tar():
@@ -44,9 +45,6 @@ def extraer_tar():
     with tarfile.open(TAR_GZ, "r:gz") as tar:
         tar.extractall(CARPETA_TEMP)
     print("✅ Archivos extraídos.")
-
-    # Eliminar el archivo tar.gz después de extraerlo
-    os.remove(TAR_GZ)
 
 
 def procesar_geojson():
@@ -58,28 +56,21 @@ def procesar_geojson():
             if file.endswith(".geojson"):
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                     data = json.load(f)
-# Asegurar que todas las features tengan color
-for feature in geojson_data["features"]:
-    nivel_aviso = feature["properties"].get("Av_mayor", 0)  # Si no hay 'Av_mayor', usa 0
-    color = COLORS.get(nivel_aviso, DEFAULT_COLOR)  # Verde si no hay nivel
+                    for feature in data.get("features", []):
+                        nivel_aviso = feature["properties"].get("Av_mayor", 0)  # Extraer nivel de aviso
+                        color = COLORS.get(nivel_aviso, DEFAULT_COLOR)  # Obtener color según el nivel
 
-    if "_umap_options" not in feature["properties"]:
-        feature["properties"]["_umap_options"] = {}  # Asegurar que existe
+                        # Asegurar que '_umap_options' existe
+                        feature["properties"]["_umap_options"] = {
+                            "color": color,
+                            "weight": 2,
+                            "opacity": 0.8
+                        }
 
-    feature["properties"]["_umap_options"]["color"] = color
-    feature["properties"]["_umap_options"]["weight"] = 2
-    feature["properties"]["_umap_options"]["opacity"] = 0.8
-
-
+                        # Agregar la feature corregida al GeoJSON combinado
                         geojson_combinado["features"].append(feature)
 
-    # Guardar el resultado combinado
-    with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
-        json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
-
-    print("✅ GeoJSON procesado correctamente.")
-
-    # Guardar el resultado combinado
+    # Guardar el archivo GeoJSON resultante
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
         json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
 
