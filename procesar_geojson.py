@@ -53,17 +53,18 @@ def procesar_geojson():
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                     data = json.load(f)
                     for feature in data.get("features", []):
-                        # Usamos Sev_PRP1, Sev_COCO y Sev_PRP2 para el nivel de alerta
+                        # Usamos Sev_PRP1, Sev_COCO, Sev_PRP2 y Sev_NENV para el nivel de alerta
                         nivel_aviso_prp1 = feature["properties"].get("Sev_PRP1", "")
                         nivel_aviso_coco = feature["properties"].get("Sev_COCO", "")
                         nivel_aviso_prp2 = feature["properties"].get("Sev_PRP2", "")
+                        nivel_aviso_nenv = feature["properties"].get("Sev_NENV", "")
 
-                        # Lógica para asignar colores basada en los tres campos
-                        if nivel_aviso_prp1 == "Amarillo" or nivel_aviso_coco == "Amarillo" or nivel_aviso_prp2 == "Amarillo":
+                        # Lógica para asignar colores basada en los cuatro campos
+                        if nivel_aviso_prp1 == "Amarillo" or nivel_aviso_coco == "Amarillo" or nivel_aviso_prp2 == "Amarillo" or nivel_aviso_nenv == "Amarillo":
                             color = COLORS["Amarillo"]
-                        elif nivel_aviso_prp1 == "Naranja" or nivel_aviso_coco == "Naranja" or nivel_aviso_prp2 == "Naranja":
+                        elif nivel_aviso_prp1 == "Naranja" or nivel_aviso_coco == "Naranja" or nivel_aviso_prp2 == "Naranja" or nivel_aviso_nenv == "Naranja":
                             color = COLORS["Naranja"]
-                        elif nivel_aviso_prp1 == "Rojo" or nivel_aviso_coco == "Rojo" or nivel_aviso_prp2 == "Rojo":
+                        elif nivel_aviso_prp1 == "Rojo" or nivel_aviso_coco == "Rojo" or nivel_aviso_prp2 == "Rojo" or nivel_aviso_nenv == "Rojo":
                             color = COLORS["Rojo"]
                         else:
                             color = DEFAULT_COLOR
@@ -72,8 +73,8 @@ def procesar_geojson():
                         feature["properties"]["_umap_options"] = {
                             "color": "#000000",      # Color del contorno (negro)
                             "weight": 2,             # Grosor del borde
-                            "opacity": 1,            # Opacidad para la visualización
-                            "fillOpacity": 0.3,      # Opacidad del relleno
+                            "opacity": 50,            # Opacidad para la visualización
+                            "fillOpacity": 50,      # Opacidad del relleno
                             "dashArray": "1",      # Líneas discontinuas en el borde
                             "fillColor": color,      # Relleno de color
                             "stroke": True,          # Asegura que tenga borde
