@@ -8,7 +8,7 @@ CONFIG_FILE = "config.json"
 with open(CONFIG_FILE, "r", encoding="utf-8") as f:
     config = json.load(f)
 
-URL_TAR = config["url_tar"]  # La URL del archivo tar.gz
+URL_TAR = config["url_tar"]  # URL del archivo tar.gz
 
 # Archivos de trabajo
 TAR_GZ = "avisos.tar.gz"
@@ -63,12 +63,12 @@ def procesar_geojson():
                             "opacity": 0.8
                         }
                         
-                        # Si existe "style", lo eliminamos para evitar conflictos
-                        if "style" in feature["properties"]:
-                            del feature["properties"]["style"]
+                        # Eliminamos "style" si existe
+                        feature["properties"].pop("style", None)
 
                         geojson_combinado["features"].append(feature)
 
+    # Guardamos el archivo corregido
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
         json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
 
