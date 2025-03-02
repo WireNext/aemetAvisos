@@ -3,8 +3,12 @@ import os
 import requests
 import tarfile
 
-# URL del archivo tar.gz de AEMET (ajústala si cambia)
-URL_TAR = "URL_DEL_ARCHIVO_TAR_GZ_DE_AEMET"
+# Leer configuración desde `config.json`
+CONFIG_FILE = "config.json"
+with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+    config = json.load(f)
+
+URL_TAR = config["https://www.aemet.es/es/geojson/download/avisos/geojson_1740870000.tar.gz"]  # La URL del archivo tar.gz
 
 # Archivos de trabajo
 TAR_GZ = "avisos.tar.gz"
@@ -15,22 +19,22 @@ SALIDA_GEOJSON = "avisos_espana.geojson"
 COLOR_MAP = {1: "yellow", 2: "orange", 3: "red"}
 
 def descargar_tar():
-    """Descarga el archivo tar.gz de AEMET."""
+    """Descarga el archivo tar.gz de la URL especificada en `config.json`."""
     response = requests.get(URL_TAR)
     if response.status_code == 200:
         with open(TAR_GZ, "wb") as f:
             f.write(response.content)
-        print("Archivo descargado.")
+        print("✅ Archivo descargado correctamente.")
     else:
-        print(f"Error al descargar: {response.status_code}")
+        print(f"❌ Error al descargar: {response.status_code}")
 
 def extraer_tar():
-    """Extrae los archivos GeoJSON."""
+    """Extrae los archivos GeoJSON del tar.gz."""
     if not os.path.exists(CARPETA_TEMP):
         os.makedirs(CARPETA_TEMP)
     with tarfile.open(TAR_GZ, "r:gz") as tar:
         tar.extractall(CARPETA_TEMP)
-    print("Archivos extraídos.")
+    print("✅ Archivos extraídos.")
 
 def procesar_geojson():
     """Combina y colorea los archivos GeoJSON."""
@@ -50,7 +54,7 @@ def procesar_geojson():
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
         json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
 
-    print("GeoJSON procesado.")
+    print("✅ GeoJSON procesado correctamente.")
 
 if __name__ == "__main__":
     descargar_tar()
