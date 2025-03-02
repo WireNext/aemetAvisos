@@ -69,7 +69,8 @@ def procesar_geojson():
                         geojson_combinado["features"].append(feature)
 
     # Guardamos el archivo corregido
-    with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
+    with open(SALIDA_GEOJSON, "r", encoding="utf-8") as f:
+    print(f.read())
         json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
 
     print("✅ GeoJSON procesado correctamente.")
