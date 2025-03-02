@@ -58,17 +58,18 @@ def procesar_geojson():
             if file.endswith(".geojson"):
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    for feature in data.get("features", []):
-                        nivel_aviso = feature["properties"].get("Av_mayor")  # Usamos 'Av_mayor' como nivel
-                       nivel_aviso = feature["properties"].get("Av_mayor", 0)  # Si no hay 'Av_mayor', usa 0
-color = COLORS.get(nivel_aviso, DEFAULT_COLOR)  # Verde si no hay nivel
+# Asegurar que todas las features tengan color
+for feature in geojson_data["features"]:
+    nivel_aviso = feature["properties"].get("Av_mayor", 0)  # Si no hay 'Av_mayor', usa 0
+    color = COLORS.get(nivel_aviso, DEFAULT_COLOR)  # Verde si no hay nivel
 
-if "_umap_options" not in feature["properties"]:
-    feature["properties"]["_umap_options"] = {}  # Asegurar que existe
+    if "_umap_options" not in feature["properties"]:
+        feature["properties"]["_umap_options"] = {}  # Asegurar que existe
 
-feature["properties"]["_umap_options"]["color"] = color
-feature["properties"]["_umap_options"]["weight"] = 2
-feature["properties"]["_umap_options"]["opacity"] = 0.8
+    feature["properties"]["_umap_options"]["color"] = color
+    feature["properties"]["_umap_options"]["weight"] = 2
+    feature["properties"]["_umap_options"]["opacity"] = 0.8
+
 
                         geojson_combinado["features"].append(feature)
 
