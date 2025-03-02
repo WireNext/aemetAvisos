@@ -8,7 +8,7 @@ CONFIG_FILE = "config.json"
 with open(CONFIG_FILE, "r", encoding="utf-8") as f:
     config = json.load(f)
 
-URL_TAR = config["https://www.aemet.es/es/geojson/download/avisos/geojson_1740870000.tar.gz"]  # La URL del archivo tar.gz
+URL_TAR = config["url_tar"]   # La URL del archivo tar.gz
 
 # Archivos de trabajo
 TAR_GZ = "avisos.tar.gz"
