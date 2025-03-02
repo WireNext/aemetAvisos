@@ -53,16 +53,17 @@ def procesar_geojson():
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                     data = json.load(f)
                     for feature in data.get("features", []):
-                        # Usamos Sev_PRP1 y Sev_COCO para el nivel de alerta
+                        # Usamos Sev_PRP1, Sev_COCO y Sev_PRP2 para el nivel de alerta
                         nivel_aviso_prp1 = feature["properties"].get("Sev_PRP1", "")
                         nivel_aviso_coco = feature["properties"].get("Sev_COCO", "")
+                        nivel_aviso_prp2 = feature["properties"].get("Sev_PRP2", "")
 
-                        # Lógica para asignar colores basada en ambos campos
-                        if nivel_aviso_prp1 == "Amarillo" or nivel_aviso_coco == "Amarillo":
+                        # Lógica para asignar colores basada en los tres campos
+                        if nivel_aviso_prp1 == "Amarillo" or nivel_aviso_coco == "Amarillo" or nivel_aviso_prp2 == "Amarillo":
                             color = COLORS["Amarillo"]
-                        elif nivel_aviso_prp1 == "Naranja" or nivel_aviso_coco == "Naranja":
+                        elif nivel_aviso_prp1 == "Naranja" or nivel_aviso_coco == "Naranja" or nivel_aviso_prp2 == "Naranja":
                             color = COLORS["Naranja"]
-                        elif nivel_aviso_prp1 == "Rojo" or nivel_aviso_coco == "Rojo":
+                        elif nivel_aviso_prp1 == "Rojo" or nivel_aviso_coco == "Rojo" or nivel_aviso_prp2 == "Rojo":
                             color = COLORS["Rojo"]
                         else:
                             color = DEFAULT_COLOR
