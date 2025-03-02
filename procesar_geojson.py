@@ -59,13 +59,19 @@ def procesar_geojson():
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                     data = json.load(f)
                     for feature in data.get("features", []):
-                        nivel_aviso = feature["properties"].get("nivel")  # Puede ser None si no está definido
+                        nivel_aviso = feature["properties"].get("Av_mayor")  # Usamos 'Av_mayor' como nivel
                         feature["properties"]["_umap_options"] = {
                             "color": COLORS.get(nivel_aviso, DEFAULT_COLOR),  # Verde si no lo encuentra
                             "weight": 2,
                             "opacity": 0.8
                         }
                         geojson_combinado["features"].append(feature)
+
+    # Guardar el resultado combinado
+    with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
+        json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
+
+    print("✅ GeoJSON procesado correctamente.")
 
     # Guardar el resultado combinado
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
