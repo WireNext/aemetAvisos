@@ -17,9 +17,9 @@ SALIDA_GEOJSON = "avisos_espana.geojson"
 
 # Definir colores según el nivel de aviso
 COLORS = {
-    1: "#FFFF00",  # Amarillo
-    2: "#FFA500",  # Naranja
-    3: "#FF0000"   # Rojo
+    "Amarillo": "#FFFF00",  # Amarillo
+    "Naranja": "#FFA500",   # Naranja
+    "Rojo": "#FF0000"       # Rojo
 }
 
 # Color por defecto si el nivel no está definido o es desconocido
@@ -53,7 +53,8 @@ def procesar_geojson():
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                     data = json.load(f)
                     for feature in data.get("features", []):
-                        nivel_aviso = feature["properties"].get("Sev_PRP1", 0)  # Usamos Sev_PRP1 para el nivel de alerta
+                        # Usamos Sev_PRP1 para el nivel de alerta
+                        nivel_aviso = feature["properties"].get("Sev_PRP1", "")
                         color = COLORS.get(nivel_aviso, DEFAULT_COLOR)
 
                         # Corregimos la clave "style" y usamos "_umap_options"
@@ -68,9 +69,19 @@ def procesar_geojson():
                             "fill": True                 # Asegura que tenga relleno
                         }
 
-                        # Descripción del aviso
-                        descripcion = feature["properties"].get("Descripcion", "Sin descripción disponible.")
-                        feature["properties"]["description"] = descripcion
+                        # Descripción del aviso completa
+                        descripcion = feature["properties"].get("Des_PRP1", "Sin descripción disponible.")
+                        resumido = feature["properties"].get("Resum_PRP1", "Sin resumen disponible.")
+                        fecha_expiracion = feature["properties"].get("Expire_PRP1", "Sin fecha de expiración.")
+                        nombre_zona = feature["properties"].get("Nombre_zona", "Zona no disponible.")
+                        
+                        # Añadimos los campos de descripción y otros detalles
+                        feature["properties"]["description"] = {
+                            "Resumen": resumido,
+                            "Descripción": descripcion,
+                            "Fecha Expiración": fecha_expiracion,
+                            "Zona": nombre_zona
+                        }
 
                         # Eliminamos "style" si existe
                         feature["properties"].pop("style", None)
