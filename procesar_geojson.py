@@ -20,7 +20,7 @@ COLOR_MAP = {1: "yellow", 2: "orange", 3: "red"}
 
 def descargar_tar():
     """Descarga el archivo tar.gz de la URL especificada en `config.json`."""
-    response = requests.get(https://www.aemet.es/es/geojson/download/avisos/geojson_1740870000.tar.gz)
+    response = requests.get(URL_TAR)
     if response.status_code == 200:
         with open(TAR_GZ, "wb") as f:
             f.write(response.content)
