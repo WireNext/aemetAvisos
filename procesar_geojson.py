@@ -25,15 +25,6 @@ COLORS = {
 # Color por defecto si el nivel no está definido o es desconocido
 DEFAULT_COLOR = "#008000"  # Verde ("green4")
 
-# Agregar estilo a cada Feature
-for feature in geojson_data["features"]:
-    nivel_aviso = feature["properties"].get("nivel")  # Puede ser None si no está definido
-    feature["properties"]["_umap_options"] = {
-        "color": COLORS.get(nivel_aviso, DEFAULT_COLOR),  # Verde si no lo encuentra
-        "weight": 2,
-        "opacity": 0.8
-    }
-
 
 def descargar_tar():
     """Descarga el archivo tar.gz de la URL especificada en `config.json`."""
@@ -45,6 +36,7 @@ def descargar_tar():
     else:
         print(f"❌ Error al descargar: {response.status_code}")
 
+
 def extraer_tar():
     """Extrae los archivos GeoJSON del tar.gz."""
     if not os.path.exists(CARPETA_TEMP):
@@ -52,6 +44,10 @@ def extraer_tar():
     with tarfile.open(TAR_GZ, "r:gz") as tar:
         tar.extractall(CARPETA_TEMP)
     print("✅ Archivos extraídos.")
+
+    # Eliminar el archivo tar.gz después de extraerlo
+    os.remove(TAR_GZ)
+
 
 def procesar_geojson():
     """Combina y colorea los archivos GeoJSON."""
@@ -63,15 +59,20 @@ def procesar_geojson():
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                     data = json.load(f)
                     for feature in data.get("features", []):
-                        nivel = feature["properties"].get("nivel", 0)
-                        if nivel in COLOR_MAP:
-                            feature["properties"]["style"] = {"color": COLOR_MAP[nivel]}
+                        nivel_aviso = feature["properties"].get("nivel")  # Puede ser None si no está definido
+                        feature["properties"]["_umap_options"] = {
+                            "color": COLORS.get(nivel_aviso, DEFAULT_COLOR),  # Verde si no lo encuentra
+                            "weight": 2,
+                            "opacity": 0.8
+                        }
                         geojson_combinado["features"].append(feature)
 
+    # Guardar el resultado combinado
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
         json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
 
     print("✅ GeoJSON procesado correctamente.")
+
 
 if __name__ == "__main__":
     descargar_tar()
