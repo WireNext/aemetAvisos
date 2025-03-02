@@ -53,7 +53,7 @@ def procesar_geojson():
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                     data = json.load(f)
                     for feature in data.get("features", []):
-                        nivel_aviso = feature["properties"].get("Av_mayor", 0)
+                        nivel_aviso = feature["properties"].get("Sev_PRP1", 0)  # Usamos Sev_PRP1 para el nivel de alerta
                         color = COLORS.get(nivel_aviso, DEFAULT_COLOR)
 
                         # Corregimos la clave "style" y usamos "_umap_options"
