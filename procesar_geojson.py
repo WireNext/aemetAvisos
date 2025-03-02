@@ -18,8 +18,8 @@ SALIDA_GEOJSON = "avisos_espana.geojson"
 # Definir colores según el nivel de aviso
 COLORS = {
     "Amarillo": "#FFFF00",  # Amarillo
-    "Naranja": "#FFA500",   # Naranja
-    "Rojo": "#FF0000"       # Rojo
+    "Naranja": "#FFA500",  # Naranja
+    "Rojo": "#FF0000"      # Rojo
 }
 
 # Color por defecto si el nivel no está definido o es desconocido
@@ -59,14 +59,14 @@ def procesar_geojson():
 
                         # Corregimos la clave "style" y usamos "_umap_options"
                         feature["properties"]["_umap_options"] = {
-                            "color": color,              # Color del contorno
-                            "weight": 2,                 # Grosor del borde
-                            "opacity": 0.8,              # Opacidad para la visualización
-                            "fillOpacity": 0.3,          # Opacidad del relleno
-                            "dashArray": "5,5",          # Líneas discontinuas en el borde
-                            "fillColor": color,          # Relleno de color
-                            "stroke": True,              # Asegura que tenga borde
-                            "fill": True                 # Asegura que tenga relleno
+                            "color": "#000000",      # Color del contorno (negro)
+                            "weight": 2,             # Grosor del borde
+                            "opacity": 50,            # Opacidad para la visualización
+                            "fillOpacity": 50,      # Opacidad del relleno
+                            "dashArray": "1",      # Líneas discontinuas en el borde
+                            "fillColor": color,      # Relleno de color
+                            "stroke": True,          # Asegura que tenga borde
+                            "fill": True             # Asegura que tenga relleno
                         }
 
                         # Descripción del aviso completa
