@@ -73,7 +73,7 @@ def procesar_geojson():
 
                         # Lógica para asignar colores basada en los cuatro campos
                         if "amarillo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
-                            color = COLORS["Amarillo"]
+                            color = COLORS["Naranja"]
                         elif "naranja" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
                             color = COLORS["Naranja"]
                         elif "rojo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
