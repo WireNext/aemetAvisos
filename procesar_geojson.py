@@ -11,7 +11,7 @@ with open(CONFIG_FILE, "r", encoding="utf-8") as f:
 URL_TAR = config["url_tar"]  # URL del archivo tar.gz
 
 # Archivos de trabajo
-TAR_GZ = "avisos.tar.gz"
+TAR_GZ = "geojson_1740974400.tar.gz"
 CARPETA_TEMP = "geojson_temp"
 SALIDA_GEOJSON = "avisos_espana.geojson"
 
