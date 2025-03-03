@@ -1,4 +1,3 @@
-
 import json
 import os
 import requests
@@ -26,27 +25,10 @@ COLORS = {
 DEFAULT_COLOR = "#008000"  # Verde
 
 def descargar_tar():
-    """Descarga el archivo tar.gz de la URL especificada en `config.json`."""
-    try:
-        response = requests.get(URL_TAR)
-        response.raise_for_status()
-        # Obtenemos el nombre del archivo de la URL.
-        file_name = URL_TAR.split("/")[-1]
-        with open(file_name, "wb") as f:
-            f.write(response.content)
-        print("✅ Archivo descargado correctamente.")
-        return file_name
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Error al descargar: {e}")
-        return None
+    # ... (resto del código)
 
 def extraer_tar(file_name):
-    """Extrae los archivos GeoJSON del tar.gz."""
-    if not os.path.exists(CARPETA_TEMP):
-        os.makedirs(CARPETA_TEMP)
-    with tarfile.open(file_name, "r:gz") as tar:
-        tar.extractall(CARPETA_TEMP)
-    print("✅ Archivos extraídos.")
+    # ... (resto del código)
 
 def procesar_geojson():
     """Combina y colorea los archivos GeoJSON con el formato correcto para uMap."""
@@ -64,12 +46,15 @@ def procesar_geojson():
                         nivel_aviso_prp2 = feature["properties"].get("Sev_PRP2", "")
                         nivel_aviso_nenv = feature["properties"].get("Sev_NENV", "")
 
+                        # Depuración: Imprimir los valores de los campos de nivel de alerta
+                        print(f"Niveles de alerta: PRP1={nivel_aviso_prp1}, COCO={nivel_aviso_coco}, PRP2={nivel_aviso_prp2}, NENV={nivel_aviso_nenv}")
+
                         # Lógica para asignar colores basada en los cuatro campos
-                        if nivel_aviso_prp1 == "Amarillo" or nivel_aviso_coco == "Amarillo" or nivel_aviso_prp2 == "Amarillo" or nivel_aviso_nenv == "Amarillo":
+                        if "Amarillo" in (nivel_aviso_prp1, nivel_aviso_coco, nivel_aviso_prp2, nivel_aviso_nenv):
                             color = COLORS["Amarillo"]
-                        elif nivel_aviso_prp1 == "Naranja" or nivel_aviso_coco == "Naranja" or nivel_aviso_prp2 == "Naranja" or nivel_aviso_nenv == "Naranja":
+                        elif "Naranja" in (nivel_aviso_prp1, nivel_aviso_coco, nivel_aviso_prp2, nivel_aviso_nenv):
                             color = COLORS["Naranja"]
-                        elif nivel_aviso_prp1 == "Rojo" or nivel_aviso_coco == "Rojo" or nivel_aviso_prp2 == "Rojo" or nivel_aviso_nenv == "Rojo":
+                        elif "Rojo" in (nivel_aviso_prp1, nivel_aviso_coco, nivel_aviso_prp2, nivel_aviso_nenv):
                             color = COLORS["Rojo"]
                         else:
                             color = DEFAULT_COLOR
@@ -91,7 +76,7 @@ def procesar_geojson():
                         resumido = feature["properties"].get("Resum_PRP1", "Sin resumen disponible.")
                         fecha_expiracion = feature["properties"].get("Expire_PRP1", "Sin fecha de expiración.")
                         nombre_zona = feature["properties"].get("Nombre_zona", "Zona no disponible.")
-                        
+
                         # Añadimos los campos de descripción y otros detalles
                         feature["properties"]["description"] = {
                             "Resumen": resumido,
@@ -111,11 +96,11 @@ def procesar_geojson():
         os.remove(SALIDA_GEOJSON)
     else:
         print(f"✅ El archivo {SALIDA_GEOJSON} no existía, se creará uno nuevo.")
-    
+
     # Guardar el archivo combinado
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
         json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
-    
+
     print(f"✅ GeoJSON procesado correctamente y guardado en {SALIDA_GEOJSON}.")
 
 if __name__ == "__main__":
@@ -125,4 +110,3 @@ if __name__ == "__main__":
         procesar_geojson()
     else:
         print("❌ No se pudo descargar el archivo. El script no continuará.")
-
