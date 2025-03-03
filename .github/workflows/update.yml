@@ -2,7 +2,7 @@ name: Actualizar Avisos AEMET
 
 on:
   schedule:
-    - cron: "*/10 * * * *"  # Cada 30 minutos
+    - cron: "*/10 * * * *"  # Cada 10 minutos
   workflow_dispatch:  # Permite ejecutarlo manualmente desde GitHub
 
 jobs:
@@ -12,10 +12,6 @@ jobs:
     steps:
       - name: Clonar el repositorio
         uses: actions/checkout@v4
-
-      - name: Crear config.json
-        run: |
-          echo '{ "url_tar": "https://www.aemet.es/es/geojson/download/avisos/geojson_1740870000.tar.gz" }' > config.json
 
       - name: Instalar dependencias
         run: pip install requests
