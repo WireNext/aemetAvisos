@@ -25,27 +25,10 @@ COLORS = {
 DEFAULT_COLOR = "#808080"  # Gris medio
 
 def descargar_tar():
-    """Descarga el archivo tar.gz de la URL especificada en `config.json`."""
-    try:
-        response = requests.get(URL_TAR)
-        response.raise_for_status()
-        # Obtenemos el nombre del archivo de la URL.
-        file_name = URL_TAR.split("/")[-1]
-        with open(file_name, "wb") as f:
-            f.write(response.content)
-        print("✅ Archivo descargado correctamente.")
-        return file_name
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Error al descargar: {e}")
-        return None
+    # ... (resto del código)
 
 def extraer_tar(file_name):
-    """Extrae los archivos GeoJSON del tar.gz."""
-    if not os.path.exists(CARPETA_TEMP):
-        os.makedirs(CARPETA_TEMP)
-    with tarfile.open(file_name, "r:gz") as tar:
-        tar.extractall(CARPETA_TEMP)
-    print("✅ Archivos extraídos.")
+    # ... (resto del código)
 
 def procesar_geojson():
     """Combina y colorea los archivos GeoJSON con el formato correcto para uMap."""
@@ -69,9 +52,8 @@ def procesar_geojson():
                         # Lógica para asignar colores basada en los cuatro campos
                         if "amarillo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
                             color = COLORS["Amarillo"]
-                        elif "naranja" in (nivel_aviso_prp1.lower().strip(), nivel_aviso_coco.lower().strip(), nivel_aviso_prp2.lower().strip(), nivel_aviso_nenv.lower().strip()):
-    color = COLORS["Naranja"]
-
+                        elif "naranja" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
+                            color = COLORS["Naranja"]
                         elif "rojo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
                             color = COLORS["Rojo"]
                         else:
