@@ -90,6 +90,48 @@ def procesar_geojson():
                         else:
                             color = DEFAULT_COLOR
 
+ 
+
+    # Diccionario para almacenar el nivel de alerta máximo por zona
+    niveles_maximos = {}
+
+    for root, _, files in os.walk(CARPETA_TEMP):
+        for file in files:
+            if file.endswith(".geojson"):
+                print(f"Procesando archivo: {file}")  # Añadir esta línea
+                with open(os.path.join(root, file), "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    for feature in data.get("features", []):
+                        # Usamos Sev_PRP1, Sev_COCO, Sev_PRP2 y Sev_NENV para el nivel de alerta
+                        nivel_aviso_prp1 = feature["properties"].get("Sev_PRP1", "")
+                        nivel_aviso_coco = feature["properties"].get("Sev_COCO", "")
+                        nivel_aviso_prp2 = feature["properties"].get("Sev_PRP2", "")
+                        nivel_aviso_nenv = feature
+
+                        # Almacenar el nivel de alerta máximo por zona
+                        zona = feature["properties"].get("Nombre_zona", "Zona desconocida")
+                        if zona not in niveles_maximos or nivel > niveles_maximos[zona]:
+                            niveles_maximos[zona] = nivel
+
+    # Filtrar avisos y asignar colores
+    for root, _, files in os.walk(CARPETA_TEMP):
+        for file in files:
+            if file.endswith(".geojson"):
+                with open(os.path.join(root, file), "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    for feature in data.get("features", []):
+                        zona = feature["properties"].get("Nombre_zona", "Zona desconocida")
+                        nivel_maximo = niveles_maximos.get(zona, 0)
+
+                        if nivel_maximo == 2:
+                            color = COLORS["Naranja"]
+                        elif nivel_maximo == 3:
+                            color = COLORS["Rojo"]
+                        elif nivel_maximo == 1:
+                            color = COLORS["Amarillo"]
+                        else:
+                            color = DEFAULT_COLOR
+
                         # Depuración: Imprimir el color asignado
                         print(f"Color asignado: {color}")
 
