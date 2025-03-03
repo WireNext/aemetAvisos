@@ -126,8 +126,3 @@ if __name__ == "__main__":
     else:
         print("❌ No se pudo descargar el archivo. El script no continuará.")
 
-Cambios principales:
- * La función extraer_tar ahora recibe el nombre del archivo descargado como argumento.
- * La función descargar_tar devuelve el nombre del archivo descargado.
- * Se llama a la función extraer_tar con el nombre del archivo descargado.
-Con estos cambios, tu script debería funcionar correctamente con el nombre dinámico del archivo en la URL de AEMET.
