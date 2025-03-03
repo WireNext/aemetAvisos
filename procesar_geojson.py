@@ -53,16 +53,10 @@ def procesar_geojson():
     """Combina y colorea los archivos GeoJSON con el formato correcto para uMap."""
     geojson_combinado = {"type": "FeatureCollection", "features": []}
 
-    # Leer avisos existentes del GeoJSON
-    avisos_existentes = []
-    if os.path.exists(SALIDA_GEOJSON):
-        with open(SALIDA_GEOJSON, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            avisos_existentes = [feature["properties"]["Identf_PRP1"] for feature in data.get("features", []) if "Identf_PRP1" in feature["properties"]]
-
     print(f"Procesando archivos en: {CARPETA_TEMP}")  # Añadir esta línea
 
-    avisos_nuevos = []  # Lista para almacenar los identificadores de los avisos nuevos
+    # Diccionario para almacenar el nivel de alerta máximo por zona
+    niveles_maximos = {}
 
     for root, _, files in os.walk(CARPETA_TEMP):
         for file in files:
@@ -80,12 +74,36 @@ def procesar_geojson():
                         # Depuración: Imprimir los valores de los campos de nivel de alerta
                         print(f"Niveles de alerta: PRP1={nivel_aviso_prp1}, COCO={nivel_aviso_coco}, PRP2={nivel_aviso_prp2}, NENV={nivel_aviso_nenv}")
 
-                        # Lógica para asignar colores basada en los cuatro campos
+                        # Lógica para asignar niveles numéricos basados en los cuatro campos
                         if "naranja" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
-                            color = COLORS["Naranja"]
+                            nivel = 2  # Naranja
                         elif "rojo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
-                            color = COLORS["Rojo"]
+                            nivel = 3  # Rojo
                         elif "amarillo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
+                            nivel = 1  # Amarillo
+                        else:
+                            nivel = 0  # Sin aviso
+
+                        # Almacenar el nivel de alerta máximo por zona
+                        zona = feature["properties"].get("Nombre_zona", "Zona desconocida")
+                        if zona not in niveles_maximos or nivel > niveles_maximos[zona]:
+                            niveles_maximos[zona] = nivel
+
+    # Filtrar avisos y asignar colores
+    for root, _, files in os.walk(CARPETA_TEMP):
+        for file in files:
+            if file.endswith(".geojson"):
+                with open(os.path.join(root, file), "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    for feature in data.get("features", []):
+                        zona = feature["properties"].get("Nombre_zona", "Zona desconocida")
+                        nivel_maximo = niveles_maximos.get(zona, 0)
+
+                        if nivel_maximo == 2:
+                            color = COLORS["Naranja"]
+                        elif nivel_maximo == 3:
+                            color = COLORS["Rojo"]
+                        elif nivel_maximo == 1:
                             color = COLORS["Amarillo"]
                         else:
                             color = DEFAULT_COLOR
@@ -123,3 +141,25 @@ def procesar_geojson():
                         feature["properties"].pop("style", None)
 
                         geojson_combinado["features"].append(feature)
+
+    print(f"GeoJSON combinado: {geojson_combinado}")  # Añadir esta línea
+
+    # Verificar si el archivo ya existe y eliminarlo
+    if os.path.exists(SALIDA_GEOJSON):
+        print(f"❗ El archivo {SALIDA_GEOJSON} ya existe, se eliminará.")
+        os.remove(SALIDA_GEOJSON)
+    else:
+        print(f"✅ El archivo {SALIDA_GEOJSON} no existía, se creará uno nuevo.")
+
+    # Guardar el archivo combinado
+    with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
+        json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
+
+    print(f"GeoJSON guardado en: {SALIDA_GEOJSON}")  # Añadir esta línea
+    print(f"✅ GeoJSON procesado correctamente y guardado en {SALIDA_GEOJSON}.")
+
+if __name__ == "__main__":
+    file_name = descargar_tar()
+    if file_name:
+        extraer_tar(file_name)
+        procesar_
