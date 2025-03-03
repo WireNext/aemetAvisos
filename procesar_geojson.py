@@ -29,7 +29,7 @@ def descargar_tar():
     try:
         response = requests.get(URL_TAR)
         response.raise_for_status()
-        # Obtenemos el nombre del archivo de la URL.
+        #Obtenemos el nombre del archivo de la url.
         file_name = URL_TAR.split("/")[-1]
         with open(file_name, "wb") as f:
             f.write(response.content)
@@ -77,9 +77,9 @@ def procesar_geojson():
                         feature["properties"]["_umap_options"] = {
                             "color": "#000000",      # Color del contorno (negro)
                             "weight": 2,             # Grosor del borde
-                            "opacity": 50,            # Opacidad para la visualización
-                            "fillOpacity": 50,      # Opacidad del relleno
-                            "dashArray": "1",      # Líneas discontinuas en el borde
+                            "opacity": 1,            # Opacidad para la visualización
+                            "fillOpacity": 0.3,      # Opacidad del relleno
+                            "dashArray": "5,5",      # Líneas discontinuas en el borde
                             "fillColor": color,      # Relleno de color
                             "stroke": True,          # Asegura que tenga borde
                             "fill": True             # Asegura que tenga relleno
