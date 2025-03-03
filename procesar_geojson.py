@@ -34,6 +34,7 @@ def descargar_tar():
         with open(file_name, "wb") as f:
             f.write(response.content)
         print("✅ Archivo descargado correctamente.")
+        print(f"Archivo descargado: {file_name}")  # Añadir esta línea
         return file_name
     except requests.exceptions.RequestException as e:
         print(f"❌ Error al descargar: {e}")
@@ -46,14 +47,18 @@ def extraer_tar(file_name):
     with tarfile.open(file_name, "r:gz") as tar:
         tar.extractall(CARPETA_TEMP)
     print("✅ Archivos extraídos.")
+    print(f"Archivos extraídos a: {CARPETA_TEMP}")  # Añadir esta línea
 
 def procesar_geojson():
     """Combina y colorea los archivos GeoJSON con el formato correcto para uMap."""
     geojson_combinado = {"type": "FeatureCollection", "features": []}
 
+    print(f"Procesando archivos en: {CARPETA_TEMP}")  # Añadir esta línea
+
     for root, _, files in os.walk(CARPETA_TEMP):
         for file in files:
             if file.endswith(".geojson"):
+                print(f"Procesando archivo: {file}")  # Añadir esta línea
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                     data = json.load(f)
                     for feature in data.get("features", []):
@@ -118,6 +123,7 @@ def procesar_geojson():
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
         json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
 
+    print(f"GeoJSON guardado en: {SALIDA_GEOJSON}")  # Añadir esta línea
     print(f"✅ GeoJSON procesado correctamente y guardado en {SALIDA_GEOJSON}.")
 
 if __name__ == "__main__":
