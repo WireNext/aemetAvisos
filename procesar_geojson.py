@@ -25,10 +25,27 @@ COLORS = {
 DEFAULT_COLOR = "#808080"  # Gris medio
 
 def descargar_tar():
-    # ... (resto del código)
+    """Descarga el archivo tar.gz de la URL especificada en `config.json`."""
+    try:
+        response = requests.get(URL_TAR)
+        response.raise_for_status()
+        # Obtenemos el nombre del archivo de la URL.
+        file_name = URL_TAR.split("/")[-1]
+        with open(file_name, "wb") as f:
+            f.write(response.content)
+        print("✅ Archivo descargado correctamente.")
+        return file_name
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Error al descargar: {e}")
+        return None
 
 def extraer_tar(file_name):
-    # ... (resto del código)
+    """Extrae los archivos GeoJSON del tar.gz."""
+    if not os.path.exists(CARPETA_TEMP):
+        os.makedirs(CARPETA_TEMP)
+    with tarfile.open(file_name, "r:gz") as tar:
+        tar.extractall(CARPETA_TEMP)
+    print("✅ Archivos extraídos.")
 
 def procesar_geojson():
     """Combina y colorea los archivos GeoJSON con el formato correcto para uMap."""
