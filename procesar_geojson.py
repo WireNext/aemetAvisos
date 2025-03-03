@@ -77,7 +77,6 @@ def procesar_geojson():
                         descripcion = feature["properties"].get("Des_PRP1", "Sin descripción disponible.")
                         resumido = feature["properties"].get("Resum_PRP1", "Sin resumen disponible.")
                         fecha_expiracion = feature["properties"].get("Expire_PRP1", "Sin fecha de expiración.")
-                        identificador = feature["properties"].get("Identf_PRP1", "Sin ID")
                         nombre_zona = feature["properties"].get("Nombre_zona", "Zona no disponible.")
                         
                         feature["properties"]["_umap_options"] = {
