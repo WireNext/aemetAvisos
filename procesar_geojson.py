@@ -22,7 +22,8 @@ COLORS = {
 }
 
 # Color por defecto si el nivel no está definido o es desconocido
-DEFAULT_COLOR = "#008000"  # Verde
+DEFAULT_COLOR = "#808080"  # Gris medio
+
 
 def descargar_tar():
     """Descarga el archivo tar.gz de la URL especificada en `config.json`."""
