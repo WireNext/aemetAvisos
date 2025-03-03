@@ -232,9 +232,9 @@ def procesar_geojson():
                         # Eliminamos "style" si existe
                         feature["properties"].pop("style", None)
 
-                        geojson_combinado["features"].append(feature
+                        geojson_combinado["features"].append(feature)
 
-    print(f"GeoJSON combinado: {geojson_combinado}")  # Añadir esta línea
+print(f"GeoJSON combinado: {geojson_combinado}")  # Añadir esta línea
 
     # Verificar si el archivo ya existe y eliminarlo
     if os.path.exists(SALIDA_GEOJSON):
