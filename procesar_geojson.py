@@ -81,6 +81,9 @@ def procesar_geojson():
                         else:
                             color = DEFAULT_COLOR
 
+                        # Depuración: Imprimir el color asignado
+                        print(f"Color asignado: {color}")
+
                         # Corregimos la clave "style" y usamos "_umap_options"
                         feature["properties"]["_umap_options"] = {
                             "color": "#000000",      # Color del contorno (negro)
