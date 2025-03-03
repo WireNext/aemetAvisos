@@ -8,13 +8,10 @@ CONFIG_FILE = "config.json"
 with open(CONFIG_FILE, "r", encoding="utf-8") as f:
     config = json.load(f)
 
-URL_TAR = config["url_tar"].strip()  # Eliminar espacios en blanco
-
-# Depuración: Imprimir la URL y su tipo
-print(f"URL leída de config.json: {URL_TAR}")
-print(f"Tipo de URL_TAR: {type(URL_TAR)}")
+URL_TAR = config["url_tar"]  # URL del archivo tar.gz
 
 # Archivos de trabajo
+TAR_GZ = "avisos.tar.gz"
 CARPETA_TEMP = "geojson_temp"
 SALIDA_GEOJSON = "avisos_espana.geojson"
 
@@ -30,24 +27,19 @@ DEFAULT_COLOR = "#008000"  # Verde
 
 def descargar_tar():
     """Descarga el archivo tar.gz de la URL especificada en `config.json`."""
-    try:
-        response = requests.get(URL_TAR)
-        response.raise_for_status()
-        #Obtenemos el nombre del archivo de la url.
-        file_name = URL_TAR.split("/")[-1]
-        with open(file_name, "wb") as f:
+    response = requests.get(URL_TAR)
+    if response.status_code == 200:
+        with open(TAR_GZ, "wb") as f:
             f.write(response.content)
         print("✅ Archivo descargado correctamente.")
-        return file_name
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Error al descargar: {e}")
-        return None
+    else:
+        print(f"❌ Error al descargar: {response.status_code}")
 
-def extraer_tar(file_name):
+def extraer_tar():
     """Extrae los archivos GeoJSON del tar.gz."""
     if not os.path.exists(CARPETA_TEMP):
         os.makedirs(CARPETA_TEMP)
-    with tarfile.open(file_name, "r:gz") as tar:
+    with tarfile.open(TAR_GZ, "r:gz") as tar:
         tar.extractall(CARPETA_TEMP)
     print("✅ Archivos extraídos.")
 
@@ -81,9 +73,9 @@ def procesar_geojson():
                         feature["properties"]["_umap_options"] = {
                             "color": "#000000",      # Color del contorno (negro)
                             "weight": 2,             # Grosor del borde
-                            "opacity": 1,            # Opacidad para la visualización
-                            "fillOpacity": 0.3,      # Opacidad del relleno
-                            "dashArray": "5,5",      # Líneas discontinuas en el borde
+                            "opacity": 50,            # Opacidad para la visualización
+                            "fillOpacity": 50,      # Opacidad del relleno
+                            "dashArray": "1",      # Líneas discontinuas en el borde
                             "fillColor": color,      # Relleno de color
                             "stroke": True,          # Asegura que tenga borde
                             "fill": True             # Asegura que tenga relleno
@@ -122,9 +114,6 @@ def procesar_geojson():
     print(f"✅ GeoJSON procesado correctamente y guardado en {SALIDA_GEOJSON}.")
 
 if __name__ == "__main__":
-    file_name = descargar_tar()
-    if file_name:
-        extraer_tar(file_name)
-        procesar_geojson()
-    else:
-        print("❌ No se pudo descargar el archivo. El script no continuará.")
+    descargar_tar()
+    extraer_tar()
+    procesar_geojson()
