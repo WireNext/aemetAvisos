@@ -1,7 +1,11 @@
 import json
 import os
+import shutil  # Faltaba importar shutil
 import requests
 import tarfile
+
+# Definir la variable para forzar actualización
+FORZAR_ACTUALIZACION = True  # Puedes cambiarlo a False si no quieres forzar
 
 # Leer configuración desde `config.json`
 CONFIG_FILE = "config.json"
@@ -10,21 +14,25 @@ with open(CONFIG_FILE, "r", encoding="utf-8") as f:
 
 URL_TAR = config["url_tar"]  # URL del archivo tar.gz
 
+# Definir rutas
+TAR_FILE_PATH = "datos/avisos.tar"
+EXTRACT_PATH = "datos/geojson_temp"
+
+# Si FORZAR_ACTUALIZACION es True, elimina archivos previos
 if FORZAR_ACTUALIZACION:
-    # Elimina el archivo TAR y la carpeta de extracción si existen
-    if os.path.exists("url_tar"):
-        os.remove("url_tar")
-    if os.path.exists("url_tar"):
-        shutil.rmtree("url_tar")
+    if os.path.exists(TAR_FILE_PATH):
+        os.remove(TAR_FILE_PATH)
+    if os.path.exists(EXTRACT_PATH):
+        shutil.rmtree(EXTRACT_PATH)
 
 # Descargar siempre el archivo TAR
-download_tar(URL_AVISOS, tar_file_path)
+download_tar(URL_TAR, TAR_FILE_PATH)
 
 # Extraer siempre los datos
-extract_tar(tar_file_path, extract_path)
+extract_tar(TAR_FILE_PATH, EXTRACT_PATH)
 
 # Archivos de trabajo
-CARPETA_TEMP = "geojson_temp"
+CARPETA_TEMP = EXTRACT_PATH
 SALIDA_GEOJSON = "avisos_espana.geojson"
 
 # Definir colores según el nivel de aviso
