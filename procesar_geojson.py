@@ -24,7 +24,6 @@ COLORS = {
 # Color por defecto si el nivel no está definido o es desconocido
 DEFAULT_COLOR = "#808080"  # Gris medio
 
-
 def descargar_tar():
     """Descarga el archivo tar.gz de la URL especificada en `config.json`."""
     try:
@@ -68,11 +67,11 @@ def procesar_geojson():
                         print(f"Niveles de alerta: PRP1={nivel_aviso_prp1}, COCO={nivel_aviso_coco}, PRP2={nivel_aviso_prp2}, NENV={nivel_aviso_nenv}")
 
                         # Lógica para asignar colores basada en los cuatro campos
-                        if "Amarillo" in (nivel_aviso_prp1, nivel_aviso_coco, nivel_aviso_prp2, nivel_aviso_nenv):
+                        if "amarillo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
                             color = COLORS["Amarillo"]
-                        elif "Naranja" in (nivel_aviso_prp1, nivel_aviso_coco, nivel_aviso_prp2, nivel_aviso_nenv):
+                        elif "naranja" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
                             color = COLORS["Naranja"]
-                        elif "Rojo" in (nivel_aviso_prp1, nivel_aviso_coco, nivel_aviso_prp2, nivel_aviso_nenv):
+                        elif "rojo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
                             color = COLORS["Rojo"]
                         else:
                             color = DEFAULT_COLOR
