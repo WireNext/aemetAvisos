@@ -72,12 +72,12 @@ def procesar_geojson():
                         print(f"Niveles de alerta: PRP1={nivel_aviso_prp1}, COCO={nivel_aviso_coco}, PRP2={nivel_aviso_prp2}, NENV={nivel_aviso_nenv}")
 
                         # Lógica para asignar colores basada en los cuatro campos
-                        if "amarillo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
-                            color = COLORS["Amarillo"]
-                        elif "naranja" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
+                        if "naranja" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
                             color = COLORS["Naranja"]
                         elif "rojo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
                             color = COLORS["Rojo"]
+                        elif "amarillo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
+                            color = COLORS["Amarillo"]
                         else:
                             color = DEFAULT_COLOR
 
@@ -106,35 +106,3 @@ def procesar_geojson():
                         feature["properties"]["description"] = {
                             "Resumen": resumido,
                             "Descripción": descripcion,
-                            "Fecha Expiración": fecha_expiracion,
-                            "Zona": nombre_zona
-                        }
-
-                        # Eliminamos "style" si existe
-                        feature["properties"].pop("style", None)
-
-                        geojson_combinado["features"].append(feature)
-
-    print(f"GeoJSON combinado: {geojson_combinado}")  # Añadir esta línea
-
-    # Verificar si el archivo ya existe y eliminarlo
-    if os.path.exists(SALIDA_GEOJSON):
-        print(f"❗ El archivo {SALIDA_GEOJSON} ya existe, se eliminará.")
-        os.remove(SALIDA_GEOJSON)
-    else:
-        print(f"✅ El archivo {SALIDA_GEOJSON} no existía, se creará uno nuevo.")
-
-    # Guardar el archivo combinado
-    with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
-        json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
-
-    print(f"GeoJSON guardado en: {SALIDA_GEOJSON}")  # Añadir esta línea
-    print(f"✅ GeoJSON procesado correctamente y guardado en {SALIDA_GEOJSON}.")
-
-if __name__ == "__main__":
-    file_name = descargar_tar()
-    if file_name:
-        extraer_tar(file_name)
-        procesar_geojson()
-    else:
-        print("❌ No se pudo descargar el archivo. El script no continuará.")
