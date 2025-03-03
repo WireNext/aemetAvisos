@@ -8,7 +8,11 @@ CONFIG_FILE = "config.json"
 with open(CONFIG_FILE, "r", encoding="utf-8") as f:
     config = json.load(f)
 
-URL_TAR = config["url_tar"]  # URL del archivo tar.gz
+URL_TAR = config["url_tar"].strip()  # Eliminar espacios en blanco
+
+# Depuración: Imprimir la URL y su tipo
+print(f"URL leída de config.json: {URL_TAR}")
+print(f"Tipo de URL_TAR: {type(URL_TAR)}")
 
 # Archivos de trabajo
 CARPETA_TEMP = "geojson_temp"
