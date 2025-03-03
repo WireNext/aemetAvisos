@@ -1,11 +1,4 @@
-Entiendo tu frustración. El error que estás recibiendo indica que el script no puede encontrar el archivo avisos.tar.gz porque la descarga del archivo ha fallado. El error específico es:
-❌ Error al descargar: 404
-FileNotFoundError: [Errno 2] No such file or directory: 'avisos.tar.gz'
 
-El problema es que el nombre del archivo que se descarga no es avisos.tar.gz sino el nombre que se extrae de la URL del config.json.
-Solución:
-El problema es que el nombre del archivo que se descarga no es avisos.tar.gz sino el nombre que se extrae de la URL del config.json. Por lo tanto, la función extraer_tar debe recibir el nombre del archivo descargado.
-Código Python Modificado:
 import json
 import os
 import requests
