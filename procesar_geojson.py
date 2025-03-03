@@ -179,7 +179,9 @@ def procesar_geojson():
                         if zona not in niveles_maximos or nivel > niveles_maximos[zona]:
                             niveles_maximos[zona] = nivel
 
-                        avisos_nuevos.append(feature["properties"]["Identf_PRP1"])
+                                                if "Identf_PRP1" in feature["properties"]:
+                            avisos_nuevos.append(feature["properties"]["Identf_PRP1"])
+
 
     # Filtrar avisos y asignar colores
     for root, _, files in os.walk(CARPETA_TEMP):
