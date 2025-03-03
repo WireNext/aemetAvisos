@@ -80,17 +80,71 @@ def procesar_geojson():
                         # Depuración: Imprimir los valores de los campos de nivel de alerta
                         print(f"Niveles de alerta: PRP1={nivel_aviso_prp1}, COCO={nivel_aviso_coco}, PRP2={nivel_aviso_prp2}, NENV={nivel_aviso_nenv}")
 
-                        # Lógica para asignar colores basada en los cuatro campos
-                        if "naranja" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
-                            color = COLORS["Naranja"]
-                        elif "rojo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
-                            color = COLORS["Rojo"]
-                        elif "amarillo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
-                            color = COLORS["Amarillo"]
-                        else:
-                            color = DEFAULT_COLOR
+                        import json
+import os
+import requests
+import tarfile
 
- 
+# Leer configuración desde `config.json`
+CONFIG_FILE = "config.json"
+with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+    config = json.load(f)
+
+URL_TAR = config["url_tar"]  # URL del archivo tar.gz
+
+# Archivos de trabajo
+CARPETA_TEMP = "geojson_temp"
+SALIDA_GEOJSON = "avisos_espana.geojson"
+
+# Definir colores según el nivel de aviso
+COLORS = {
+    "Amarillo": "#FFFF00",  # Amarillo
+    "Naranja": "#FFA500",  # Naranja
+    "Rojo": "#FF0000"      # Rojo
+}
+
+# Color por defecto si el nivel no está definido o es desconocido
+DEFAULT_COLOR = "#808080"  # Gris medio
+
+def descargar_tar():
+    """Descarga el archivo tar.gz de la URL especificada en `config.json`."""
+    try:
+        response = requests.get(URL_TAR)
+        response.raise_for_status()
+        # Obtenemos el nombre del archivo de la URL.
+        file_name = URL_TAR.split("/")[-1]
+        with open(file_name, "wb") as f:
+            f.write(response.content)
+        print("✅ Archivo descargado correctamente.")
+        print(f"Archivo descargado: {file_name}")  # Añadir esta línea
+        return file_name
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Error al descargar: {e}")
+        return None
+
+def extraer_tar(file_name):
+    """Extrae los archivos GeoJSON del tar.gz."""
+    if not os.path.exists(CARPETA_TEMP):
+        os.makedirs(CARPETA_TEMP)
+    with tarfile.open(file_name, "r:gz") as tar:
+        tar.extractall(CARPETA_TEMP)
+    print("✅ Archivos extraídos.")
+    print(f"Archivos extraídos a: {CARPETA_TEMP}")  # Añadir esta línea
+
+def procesar_geojson():
+    """Combina y colorea los archivos GeoJSON con el formato correcto para uMap."""
+    geojson_combinado = {"type": "FeatureCollection", "features": []}
+
+    # Leer avisos existentes del GeoJSON
+    avisos_existentes = []
+    if os.path.exists(SALIDA_GEOJSON):
+        with open(SALIDA_GEOJSON, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            avisos_existentes = [feature["properties"]["Identf_PRP1"] for feature in data.get("features", []) if "Identf_PRP1" in feature["properties"]]
+
+    print(f"Procesando archivos en: {CARPETA_TEMP}")  # Añadir esta línea
+
+    avisos_nuevos = []  # Lista para almacenar los identificadores de los avisos nuevos
 
     # Diccionario para almacenar el nivel de alerta máximo por zona
     niveles_maximos = {}
@@ -106,12 +160,26 @@ def procesar_geojson():
                         nivel_aviso_prp1 = feature["properties"].get("Sev_PRP1", "")
                         nivel_aviso_coco = feature["properties"].get("Sev_COCO", "")
                         nivel_aviso_prp2 = feature["properties"].get("Sev_PRP2", "")
-                        nivel_aviso_nenv = feature
+                        nivel_aviso_nenv = feature["properties"].get("Sev_NENV", "")
+
+                        # Depuración: Imprimir los valores de los campos de nivel de alerta
+                        print(f"Niveles de alerta: PRP1={nivel_aviso_prp1}, COCO={nivel_aviso_coco}, PRP2={nivel_aviso_prp2}, NENV={nivel_aviso_nenv}")
+
+                        # Lógica para asignar niveles numéricos basados en los cuatro campos
+                        nivel = 0  # Nivel por defecto (sin aviso)
+                        if "naranja" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
+                            nivel = 2  # Naranja
+                        elif "rojo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
+                            nivel = 3  # Rojo
+                        elif "amarillo" in (nivel_aviso_prp1.lower(), nivel_aviso_coco.lower(), nivel_aviso_prp2.lower(), nivel_aviso_nenv.lower()):
+                            nivel = 1  # Amarillo
 
                         # Almacenar el nivel de alerta máximo por zona
                         zona = feature["properties"].get("Nombre_zona", "Zona desconocida")
                         if zona not in niveles_maximos or nivel > niveles_maximos[zona]:
                             niveles_maximos[zona] = nivel
+
+                        avisos_nuevos.append(feature["properties"]["Identf_PRP1"])
 
     # Filtrar avisos y asignar colores
     for root, _, files in os.walk(CARPETA_TEMP):
@@ -141,7 +209,7 @@ def procesar_geojson():
                             "weight": 2,             # Grosor del borde
                             "opacity": 1,            # Opacidad para la visualización
                             "fillOpacity": 0.3,      # Opacidad del relleno
-                            "dashArray": 1.1,      # Líneas discontinuas en el borde
+                            "dashArray": 1,      # Líneas discontinuas en el borde
                             "fillColor": color,      # Relleno de color
                             "stroke": True,          # Asegura que tenga borde
                             "fill": True             # Asegura que tenga relleno
@@ -164,7 +232,7 @@ def procesar_geojson():
                         # Eliminamos "style" si existe
                         feature["properties"].pop("style", None)
 
-                        geojson_combinado["features"].append(feature)
+                        geojson_combinado["features"].append(feature
 
     print(f"GeoJSON combinado: {geojson_combinado}")  # Añadir esta línea
 
