@@ -68,6 +68,7 @@ def procesar_geojson():
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                     data = json.load(f)
                     for feature in data.get("features", []):
+                        print(f" {zona}: Inicio={inicio}, Expiración={expiracion}, Ahora={ahora}")
                         zona = feature["properties"].get("Nombre_zona", "Zona desconocida")
                         fecha_inicio = feature["properties"].get("Onset_PRP1", "")
                         fecha_expiracion = feature["properties"].get("Expire_PRP1", "")
@@ -84,7 +85,7 @@ def procesar_geojson():
 
                         if inicio and expiracion:
                             if not (inicio <= ahora <= expiracion):
-                                print(f"⏳ Omitiendo alerta de {zona}, no está activa ahora.")
+                                print(f"⏳ Omitiendo alerta de {zona}, no está activa ahora. Inicio: {inicio}, Expiración: {expiracion}, Ahora: {ahora}")
                                 continue  # Solo avisos activos en este momento
 
                         # Evaluar nivel de severidad
