@@ -135,7 +135,8 @@ def procesar_geojson():
                         }
 
                         feature["properties"]["description"] = (
-                            f"<b>Descripció:</b> {feature['properties'].get('description', 'N/A')}<br>"
+                            f"<b>Resumen:</b> {resumido}<br>"
+                            f"<b>Descripción:</b> {descripcion}<br>"
                             f"<b>Fecha de inicio:</b> {feature['properties'].get('Onset_PRP1', 'N/A')}<br>"
                             f"<b>Fecha de expiración:</b> {feature['properties'].get('Expire_PRP1', 'N/A')}<br>"
                             f"<b>Zona:</b> {zona}<br>"
