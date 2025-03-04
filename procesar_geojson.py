@@ -63,50 +63,53 @@ def procesar_geojson():
     ahora = datetime.utcnow().replace(tzinfo=timezone.utc)
 
     for root, _, files in os.walk(EXTRACT_PATH):
-        for file in files:
-            if file.endswith(".geojson"):
-                with open(os.path.join(root, file), "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    for feature in data.get("features", []):
-                        zona = feature["properties"].get("Nombre_zona", "Zona desconocida")
-                        fecha_inicio = feature["properties"].get("Onset_PRP1", "")
-                        fecha_expiracion = feature["properties"].get("Expire_PRP1", "")
+    for file in files:
+        if file.endswith(".geojson"):
+            with open(os.path.join(root, file), "r", encoding="utf-8") as f:
+                data = json.load(f)
+                for feature in data.get("features", []):
+                    zona = feature["properties"].get("Nombre_zona", "Zona desconocida")
+                    fecha_inicio = feature["properties"].get("Onset_PRP1", "")
+                    fecha_expiracion = feature["properties"].get("Expire_PRP1", "")
 
-                        try:
-                            fecha_inicio_utc_plus_1 = datetime.fromisoformat(fecha_inicio)
-                            fecha_expiracion_utc_plus_1 = datetime.fromisoformat(fecha_expiracion)
+                    try:
+                        # Convertir las fechas directamente a UTC sin cambios de zona horaria
+                        inicio = datetime.fromisoformat(fecha_inicio).replace(tzinfo=timezone.utc) if fecha_inicio else None
+                        expiracion = datetime.fromisoformat(fecha_expiracion).replace(tzinfo=timezone.utc) if fecha_expiracion else None
+                    except ValueError:
+                        print(f"⚠️ Error con las fechas en {zona}: {fecha_inicio} - {fecha_expiracion}")
+                        continue
 
-                            # Convertir a UTC
-                            inicio = fecha_inicio_utc_plus_1.astimezone(timezone.utc)
-                            expiracion = fecha_expiracion_utc_plus_1.astimezone(timezone.utc)
-                        except ValueError:
-                            print(f"⚠️ Error con las fechas en {zona}: {fecha_inicio} - {fecha_expiracion}")
-                            continue
-
-                        print(f" {zona}: Inicio={inicio} (UTC={inicio.tzinfo}), Expiración={expiracion} (UTC={expiracion.tzinfo}), Ahora={ahora} (UTC={ahora.tzinfo})")
-                        print(f"   Comparación: {inicio} <= {ahora} <= {expiracion} = {inicio <= ahora <= expiracion}")
-
+                    # Depuración: Comparar UTC y hora local
+                    local_tz = datetime.now().astimezone().tzinfo
+                    print(f"📍 {zona}:")
+                    print(f"   Inicio (UTC): {inicio}, Expiración (UTC): {expiracion}")
+                    print(f"   Ahora (UTC): {ahora}")
+                    print(f"   Inicio (Local {local_tz}): {inicio.astimezone(local_tz)}, Expiración (Local): {expiracion.astimezone(local_tz)}")
+                    
+                    # Filtrar solo los avisos vigentes AHORA
+                    if inicio and expiracion:
                         if not (inicio <= ahora <= expiracion):
-                            print(f"⏳ Omitiendo alerta de {zona}, no está activa ahora. Inicio: {inicio}, Expiración: {expiracion}, Ahora: {ahora}")
-                            continue
+                            print(f"⏳ Omitiendo alerta de {zona}, no está activa ahora.")
+                            continue  # Solo avisos activos
 
-                        niveles = [
-                            feature["properties"].get("Sev_PRP1", "").lower(),
-                            feature["properties"].get("Sev_COCO", "").lower(),
-                            feature["properties"].get("Sev_PRP2", "").lower(),
-                            feature["properties"].get("Sev_NENV", "").lower()
-                        ]
-                        nivel = 0
-                        if "rojo" in niveles:
-                            nivel = 3
-                        elif "naranja" in niveles:
-                            nivel = 2
-                        elif "amarillo" in niveles:
-                            nivel = 1
+                    # Evaluar nivel de severidad
+                    niveles = [
+                        feature["properties"].get("Sev_PRP1", "").lower(),
+                        feature["properties"].get("Sev_COCO", "").lower(),
+                        feature["properties"].get("Sev_PRP2", "").lower(),
+                        feature["properties"].get("Sev_NENV", "").lower()
+                    ]
+                    nivel = 0
+                    if "rojo" in niveles:
+                        nivel = 3
+                    elif "naranja" in niveles:
+                        nivel = 2
+                    elif "amarillo" in niveles:
+                        nivel = 1
 
-                        if zona not in niveles_maximos or nivel > niveles_maximos[zona]:
-                            niveles_maximos[zona] = nivel
-                            print(f"Nivel maximo {niveles_maximos}")
+                    if zona not in niveles_maximos or nivel > niveles_maximos[zona]:
+                        niveles_maximos[zona] = nivel
 
                         # Depuración: Imprimir propiedades del feature
                         print(f"   Propiedades: {feature['properties']}")
