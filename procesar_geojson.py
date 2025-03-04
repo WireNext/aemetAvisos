@@ -57,7 +57,6 @@ def extraer_tar():
     print("✅ Archivos extraídos.")
 
 def procesar_geojson():
-    """Combina y colorea los archivos GeoJSON con el formato correcto para uMap, seleccionando los avisos más severos y activos."""
     geojson_combinado = {"type": "FeatureCollection", "features": []}
     niveles_maximos = {}
     ahora = datetime.utcnow().replace(tzinfo=timezone.utc)
@@ -68,7 +67,6 @@ def procesar_geojson():
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                     data = json.load(f)
                     for feature in data.get("features", []):
-                        print(f" {zona}: Inicio={inicio}, Expiración={expiracion}, Ahora={ahora}")
                         zona = feature["properties"].get("Nombre_zona", "Zona desconocida")
                         fecha_inicio = feature["properties"].get("Onset_PRP1", "")
                         fecha_expiracion = feature["properties"].get("Expire_PRP1", "")
@@ -78,17 +76,17 @@ def procesar_geojson():
                             expiracion = datetime.fromisoformat(fecha_expiracion).replace(tzinfo=timezone.utc) if fecha_expiracion else None
                         except ValueError:
                             print(f"⚠️ Error con las fechas en {zona}: {fecha_inicio} - {fecha_expiracion}")
-                            continue  # Omitir si hay error en la fecha
-
-                        # Depuración: Ver fechas
-                        print(f" {zona}: Inicio={inicio}, Expiración={expiracion}, Ahora={ahora}")
+                            continue
 
                         if inicio and expiracion:
+                            print(f" {zona}: Inicio={inicio} (UTC={inicio.tzinfo}), Expiración={expiracion} (UTC={expiracion.tzinfo}), Ahora={ahora} (UTC={ahora.tzinfo})")
                             if not (inicio <= ahora <= expiracion):
                                 print(f"⏳ Omitiendo alerta de {zona}, no está activa ahora. Inicio: {inicio}, Expiración: {expiracion}, Ahora: {ahora}")
-                                continue  # Solo avisos activos en este momento
+                                continue
+                        else:
+                            print(f"⚠️ Alerta en {zona} sin fechas válidas, omitiendo.")
+                            continue
 
-                        # Evaluar nivel de severidad
                         niveles = [
                             feature["properties"].get("Sev_PRP1", "").lower(),
                             feature["properties"].get("Sev_COCO", "").lower(),
@@ -103,9 +101,9 @@ def procesar_geojson():
                         elif "amarillo" in niveles:
                             nivel = 1
 
-                        # Solo guardar si es el nivel más alto para la zona
                         if zona not in niveles_maximos or nivel > niveles_maximos[zona]:
                             niveles_maximos[zona] = nivel
+                            print(f"Nivel maximo {niveles_maximos}")
 
     for root, _, files in os.walk(EXTRACT_PATH):
         for file in files:
