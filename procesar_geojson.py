@@ -80,6 +80,7 @@ def procesar_geojson():
 
                         if inicio and expiracion:
                             print(f" {zona}: Inicio={inicio} (UTC={inicio.tzinfo}), Expiración={expiracion} (UTC={expiracion.tzinfo}), Ahora={ahora} (UTC={ahora.tzinfo})")
+                            print(f"   Comparación: {inicio} <= {ahora} <= {expiracion} = {inicio <= ahora <= expiracion}")
                             if not (inicio <= ahora <= expiracion):
                                 print(f"⏳ Omitiendo alerta de {zona}, no está activa ahora. Inicio: {inicio}, Expiración: {expiracion}, Ahora: {ahora}")
                                 continue
@@ -104,6 +105,10 @@ def procesar_geojson():
                         if zona not in niveles_maximos or nivel > niveles_maximos[zona]:
                             niveles_maximos[zona] = nivel
                             print(f"Nivel maximo {niveles_maximos}")
+
+                        # Depuración: Imprimir propiedades del feature
+                        print(f"   Propiedades: {feature['properties']}")
+
 
     for root, _, files in os.walk(EXTRACT_PATH):
         for file in files:
