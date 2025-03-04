@@ -62,7 +62,7 @@ def procesar_geojson():
     niveles_maximos = {}
     ahora = datetime.utcnow().replace(tzinfo=timezone.utc)
 
-    for root, _, files in os.walk(EXTRACT_PATH):
+for root, _, files in os.walk(EXTRACT_PATH):
     for file in files:
         if file.endswith(".geojson"):
             with open(os.path.join(root, file), "r", encoding="utf-8") as f:
@@ -110,6 +110,7 @@ def procesar_geojson():
 
                     if zona not in niveles_maximos or nivel > niveles_maximos[zona]:
                         niveles_maximos[zona] = nivel
+
 
                         # Depuración: Imprimir propiedades del feature
                         print(f"   Propiedades: {feature['properties']}")
