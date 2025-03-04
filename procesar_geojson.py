@@ -28,13 +28,12 @@ COLORS = {
 
 # Mensajes de advertencia según nivel de alerta
 WARNING_MESSAGES = {
-    "Amarillo": "Tenga cuidado, manténgase informado de las últimas previsiones meteorológicas. Pueden producirse daños moderados a personas y propiedades, especialmente a personas vulnerables o en zonas expuestas.",
-    "Naranja": "Esté atento y manténgase al día con las últimas previsiones meteorológicas. Pueden producirse daños moderados a personas y propiedades, especialmente a personas vulnerables o en zonas expuestas.",
-    "Rojo": "Tome medidas de precaución, permanezca alerta y actúe según los consejos de las autoridades. Manténgase al día con las últimas previsiones meteorológicas. Viaje solo si su viaje es imprescindible. Pueden producirse daños extremos o catastróficos a personas y propiedades, especialmente a las personas vulnerables o en zonas expuestas."
+    "Amarillo": "Tenga cuidado, manténgase informado de las últimas previsiones meteorológicas.",
+    "Naranja": "Esté atento y manténgase al día con las últimas previsiones meteorológicas.",
+    "Rojo": "Tome medidas de precaución, permanezca alerta y actúe según los consejos de las autoridades."
 }
 
 DEFAULT_COLOR = "#808080"  # Gris medio
-
 
 def descargar_tar():
     """Descarga el archivo tar.gz de la URL especificada en `config.json`."""
@@ -47,7 +46,6 @@ def descargar_tar():
     except requests.exceptions.RequestException as e:
         print(f"❌ Error al descargar: {e}")
 
-
 def extraer_tar():
     """Extrae los archivos GeoJSON del tar.gz."""
     if not os.path.exists(EXTRACT_PATH):
@@ -55,7 +53,6 @@ def extraer_tar():
     with tarfile.open(TAR_FILE_PATH, "r:gz") as tar:
         tar.extractall(EXTRACT_PATH)
     print("✅ Archivos extraídos.")
-
 
 def procesar_geojson():
     """Combina y colorea los archivos GeoJSON con el formato correcto para uMap."""
@@ -75,13 +72,9 @@ def procesar_geojson():
                             feature["properties"].get("Sev_PRP2", "").lower(),
                             feature["properties"].get("Sev_NENV", "").lower()
                         ]
-                        nivel = 0
-                        if "rojo" in niveles:
-                            nivel = 3
-                        elif "naranja" in niveles:
-                            nivel = 2
-                        elif "amarillo" in niveles:
-                            nivel = 1
+                        nivel = max([3 if "rojo" in niveles else 0,
+                                     2 if "naranja" in niveles else 0,
+                                     1 if "amarillo" in niveles else 0])
 
                         if zona not in niveles_maximos or nivel > niveles_maximos[zona]:
                             niveles_maximos[zona] = nivel
@@ -138,7 +131,6 @@ def procesar_geojson():
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
         json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
     print(f"✅ GeoJSON procesado y guardado en {SALIDA_GEOJSON}.")
-
 
 if __name__ == "__main__":
     descargar_tar()
