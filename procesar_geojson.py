@@ -167,4 +167,4 @@ def procesar_geojson():
                         geojson_combinado["features"].append(feature)
 
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
-        json.dump(geojson_combinado, f,
+        json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
