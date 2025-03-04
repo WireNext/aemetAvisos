@@ -78,8 +78,12 @@ def procesar_geojson():
                         except ValueError:
                             continue
                         
-                        if inicio and expiracion and not (inicio <= ahora <= expiracion):
-                            continue  # Omitir si no está activo
+if inicio and expiracion:
+    inicio = inicio.replace(tzinfo=None)
+    expiracion = expiracion.replace(tzinfo=None)
+    if not (inicio <= ahora <= expiracion):
+        continue  # Omitir si no está activo
+
                         
                         niveles = [
                             feature["properties"].get("Sev_PRP1", "").lower(),
