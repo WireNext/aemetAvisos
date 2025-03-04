@@ -57,6 +57,7 @@ def extraer_tar():
     print("✅ Archivos extraídos.")
 
 def procesar_geojson():
+    """Combina y colorea los archivos GeoJSON con el formato correcto para uMap, seleccionando los avisos más severos y activos."""
     geojson_combinado = {"type": "FeatureCollection", "features": []}
     niveles_maximos = {}
     ahora = datetime.utcnow().replace(tzinfo=timezone.utc)
@@ -72,20 +73,21 @@ def procesar_geojson():
                         fecha_expiracion = feature["properties"].get("Expire_PRP1", "")
 
                         try:
-                            inicio = datetime.fromisoformat(fecha_inicio).replace(tzinfo=timezone.utc) if fecha_inicio else None
-                            expiracion = datetime.fromisoformat(fecha_expiracion).replace(tzinfo=timezone.utc) if fecha_expiracion else None
+                            fecha_inicio_utc_plus_1 = datetime.fromisoformat(fecha_inicio)
+                            fecha_expiracion_utc_plus_1 = datetime.fromisoformat(fecha_expiracion)
+
+                            # Convertir a UTC
+                            inicio = fecha_inicio_utc_plus_1.astimezone(timezone.utc)
+                            expiracion = fecha_expiracion_utc_plus_1.astimezone(timezone.utc)
                         except ValueError:
                             print(f"⚠️ Error con las fechas en {zona}: {fecha_inicio} - {fecha_expiracion}")
                             continue
 
-                        if inicio and expiracion:
-                            print(f" {zona}: Inicio={inicio} (UTC={inicio.tzinfo}), Expiración={expiracion} (UTC={expiracion.tzinfo}), Ahora={ahora} (UTC={ahora.tzinfo})")
-                            print(f"   Comparación: {inicio} <= {ahora} <= {expiracion} = {inicio <= ahora <= expiracion}")
-                            if not (inicio <= ahora <= expiracion):
-                                print(f"⏳ Omitiendo alerta de {zona}, no está activa ahora. Inicio: {inicio}, Expiración: {expiracion}, Ahora: {ahora}")
-                                continue
-                        else:
-                            print(f"⚠️ Alerta en {zona} sin fechas válidas, omitiendo.")
+                        print(f" {zona}: Inicio={inicio} (UTC={inicio.tzinfo}), Expiración={expiracion} (UTC={expiracion.tzinfo}), Ahora={ahora} (UTC={ahora.tzinfo})")
+                        print(f"   Comparación: {inicio} <= {ahora} <= {expiracion} = {inicio <= ahora <= expiracion}")
+
+                        if not (inicio <= ahora <= expiracion):
+                            print(f"⏳ Omitiendo alerta de {zona}, no está activa ahora. Inicio: {inicio}, Expiración: {expiracion}, Ahora: {ahora}")
                             continue
 
                         niveles = [
