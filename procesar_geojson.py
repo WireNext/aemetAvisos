@@ -40,6 +40,10 @@ def descargar_tar():
     try:
         response = requests.get(URL_TAR)
         response.raise_for_status()
+        
+        # Crear la carpeta 'datos/' si no existe
+        os.makedirs(os.path.dirname(TAR_FILE_PATH), exist_ok=True)
+
         with open(TAR_FILE_PATH, "wb") as f:
             f.write(response.content)
         print("✅ Archivo descargado correctamente.")
