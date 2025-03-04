@@ -78,11 +78,13 @@ def procesar_geojson():
                         except ValueError:
                             continue
                         
-                        if inicio and expiracion:
-                            inicio = inicio.replace(tzinfo=None)
-                            expiracion = expiracion.replace(tzinfo=None)
-                            if not (inicio <= ahora <= expiracion):
-                                continue  # Omitir si no está activo
+                        try:
+                            inicio = datetime.fromisoformat(fecha_inicio) if fecha_inicio else None
+                            expiracion = datetime.fromisoformat(fecha_expiracion) if fecha_expiracion else None
+                        except ValueError:
+                            print(f"⚠️ Error con las fechas en {zona}: {fecha_inicio} - {fecha_expiracion}")
+                            continue  # Omitir si hay error en la fecha
+
 
                         
                         niveles = [
