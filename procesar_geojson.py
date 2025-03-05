@@ -124,8 +124,18 @@ def procesar_geojson():
 
                         descripcion = feature["properties"].get("Des_PRP1", "Sin descripción disponible.")
                         resumido = feature["properties"].get("Resum_PRP1", "Sin resumen disponible.")
-                        fecha_expiracion = feature["properties"].get("Expire_PRP1", "Sin fecha de expiración.")
-                        fecha_inicio = feature["properties"].get("Onset_PRP1", "Sin fecha de inicio.")
+                        from datetime import datetime
+                        
+                        def formatear_fecha(fecha):
+                            """Convierte una fecha ISO en formato DD-MM-YY HH:MM o devuelve 'Desconocida' si es inválida."""
+                            try:
+                                dt = datetime.fromisoformat(fecha)
+                                return dt.strftime("%d-%m-%y %H:%M")
+                            except (ValueError, TypeError):
+                                return "Desconocida"
+                        
+                        fecha_expiracion = formatear_fecha(feature["properties"].get("Expire_PRP1"))
+                        fecha_inicio = formatear_fecha(feature["properties"].get("Onset_PRP1"))
 
                         feature["properties"]["description"] = (
                             f"<b>Resumen:</b> {resumido}<br>"
