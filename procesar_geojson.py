@@ -123,8 +123,8 @@ def procesar_geojson():
                             "fill": True
                         }
 
-                        descripcion = feature["properties"].get("Des_PRP1", "Des_PRP2", "Sin descripción disponible.")
-                        resumido = feature["properties"].get("Resum_PRP1", "Resum_PRP2", "Sin resumen disponible.")
+                        descripcion = feature["properties"].get("Des_PRP1", "Sin descripción disponible.")
+                        resumido = feature["properties"].get("Resum_PRP1", "Sin resumen disponible.")
                         from datetime import datetime
                         
                         def formatear_fecha(fecha):
