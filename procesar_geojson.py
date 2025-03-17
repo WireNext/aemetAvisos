@@ -63,6 +63,15 @@ def procesar_geojson():
     geojson_combinado = {"type": "FeatureCollection", "features": []}
     niveles_maximos = {}
 
+    def formatear_fecha(fecha):
+        """Convierte una fecha ISO en formato DD-MM-YY HH:MM o devuelve 'Desconocida' si es inválida."""
+        try:
+            from datetime import datetime
+            dt = datetime.fromisoformat(fecha)
+            return dt.strftime("%d-%m-%y %H:%M")
+        except (ValueError, TypeError):
+            return "Desconocida"
+
     for root, _, files in os.walk(EXTRACT_PATH):
         for file in files:
             if file.endswith(".geojson"):
@@ -132,16 +141,6 @@ def procesar_geojson():
                             valor_prp2 = feature["properties"].get("Valor_PRP2", "Valor no disponible.")
                             onset_prp2 = formatear_fecha(feature["properties"].get("Onset_PRP2"))
                             expire_prp2 = formatear_fecha(feature["properties"].get("Expire_PRP2"))
-                            
-                            from datetime import datetime
-                            
-                            def formatear_fecha(fecha):
-                                """Convierte una fecha ISO en formato DD-MM-YY HH:MM o devuelve 'Desconocida' si es inválida."""
-                                try:
-                                    dt = datetime.fromisoformat(fecha)
-                                    return dt.strftime("%d-%m-%y %H:%M")
-                                except (ValueError, TypeError):
-                                    return "Desconocida"
 
                             feature["properties"]["description"] = (
                                 f"<b>Resumen:</b> {resumido_prp1}<br>"
@@ -162,7 +161,6 @@ def procesar_geojson():
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
         json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
     print(f"✅ GeoJSON procesado y guardado en {SALIDA_GEOJSON}.")
-
 
 if __name__ == "__main__":
     descargar_tar()
