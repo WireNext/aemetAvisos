@@ -3,7 +3,8 @@ import os
 import shutil
 import requests
 import tarfile
-import datetime
+from datetime import datetime
+import iso8601
 
 # Definir la variable para forzar actualización
 FORZAR_ACTUALIZACION = True  # Puedes cambiarlo a False si no quieres forzar
@@ -67,16 +68,16 @@ def procesar_geojson():
     def formatear_fecha(fecha):
         """Convierte una fecha ISO en formato DD-MM-YY HH:MM o devuelve 'Desconocida' si es inválida."""
         try:
-            dt = datetime.fromisoformat(fecha)
+            dt = iso8601.parse_date(fecha)
             return dt.strftime("%d-%m-%y %H:%M")
-        except (ValueError, TypeError):
+        except (iso8601.ParseError, TypeError):
             return "Desconocida"
     
     def obtener_fecha_dt(fecha):
         """Convierte una fecha ISO a datetime o devuelve None si es inválida."""
         try:
-            return datetime.fromisoformat(fecha)
-        except (ValueError, TypeError):
+            return iso8601.parse_date(fecha)
+        except (iso8601.ParseError, TypeError):
             return None
 
     for root, _, files in os.walk(EXTRACT_PATH):
