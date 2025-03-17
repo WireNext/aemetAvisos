@@ -88,7 +88,7 @@ def procesar_geojson():
                         if zona not in niveles_maximos or nivel > niveles_maximos[zona]:
                             niveles_maximos[zona] = nivel
 
-      for root, _, files in os.walk(EXTRACT_PATH):
+    for root, _, files in os.walk(EXTRACT_PATH):
         for file in files:
             if file.endswith(".geojson"):
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
