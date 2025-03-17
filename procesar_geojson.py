@@ -33,9 +33,6 @@ WARNING_MESSAGES = {
     "Rojo": "Tome medidas de precaución, permanezca alerta y actúe según los consejos de las autoridades. Manténgase al día con las últimas previsiones meteorológicas. Viaje solo si su viaje es imprescindible. Pueden producirse daños extremos o catastróficos a personas y propiedades, especialmente a las personas vulnerables o en zonas expuestas."
 }
 
-DEFAULT_COLOR = "#808080"  # Gris medio
-
-
 def descargar_tar():
     """Descarga el archivo tar.gz de la URL especificada en `config.json`."""
     try:
@@ -99,56 +96,59 @@ def procesar_geojson():
                     for feature in data.get("features", []):
                         zona = feature["properties"].get("Nombre_zona", "Zona desconocida")
                         nivel_maximo = niveles_maximos.get(zona, 0)
-                        color = DEFAULT_COLOR
-                        mensaje_advertencia = ""
-
-                        if nivel_maximo == 3:
-                            color = COLORS["Rojo"]
-                            mensaje_advertencia = WARNING_MESSAGES["Rojo"]
-                        elif nivel_maximo == 2:
-                            color = COLORS["Naranja"]
-                            mensaje_advertencia = WARNING_MESSAGES["Naranja"]
-                        elif nivel_maximo == 1:
-                            color = COLORS["Amarillo"]
-                            mensaje_advertencia = WARNING_MESSAGES["Amarillo"]
-
-                        feature["properties"]["_umap_options"] = {
-                            "color": "#000000",
-                            "weight": 2,
-                            "opacity": 1,
-                            "fillOpacity": 0.3,
-                            "dashArray": 1,
-                            "fillColor": color,
-                            "stroke": True,
-                            "fill": True
-                        }
-
-                        descripcion = feature["properties"].get("Des_PRP1", "Sin descripción disponible.")
-                        resumido = feature["properties"].get("Resum_PRP1", "Sin resumen disponible.")
-                        from datetime import datetime
                         
-                        def formatear_fecha(fecha):
-                            """Convierte una fecha ISO en formato DD-MM-YY HH:MM o devuelve 'Desconocida' si es inválida."""
-                            try:
-                                dt = datetime.fromisoformat(fecha)
-                                return dt.strftime("%d-%m-%y %H:%M")
-                            except (ValueError, TypeError):
-                                return "Desconocida"
-                        
-                        fecha_expiracion = formatear_fecha(feature["properties"].get("Expire_PRP1"))
-                        fecha_inicio = formatear_fecha(feature["properties"].get("Onset_PRP1"))
+                        # Solo procesar zonas con alertas (nivel_maximo > 0)
+                        if nivel_maximo > 0:
+                            color = None
+                            mensaje_advertencia = ""
 
-                        feature["properties"]["description"] = (
-                            f"<b>Resumen:</b> {resumido}<br>"
-                            f"<b>Descripción:</b> {descripcion}<br>"
-                            f"<b>Fecha de inicio:</b> {fecha_inicio}<br>"
-                            f"<b>Fecha de expiración:</b> {fecha_expiracion}<br>"
-                            f"<b>Zona:</b> {zona}<br><br>"
-                            f"<b>⚠️ Advertencia:</b> {mensaje_advertencia}"
-                        )
+                            if nivel_maximo == 3:
+                                color = COLORS["Rojo"]
+                                mensaje_advertencia = WARNING_MESSAGES["Rojo"]
+                            elif nivel_maximo == 2:
+                                color = COLORS["Naranja"]
+                                mensaje_advertencia = WARNING_MESSAGES["Naranja"]
+                            elif nivel_maximo == 1:
+                                color = COLORS["Amarillo"]
+                                mensaje_advertencia = WARNING_MESSAGES["Amarillo"]
 
-                        feature["properties"].pop("style", None)
-                        geojson_combinado["features"].append(feature)
+                            feature["properties"]["_umap_options"] = {
+                                "color": "#000000",
+                                "weight": 2,
+                                "opacity": 1,
+                                "fillOpacity": 0.3,
+                                "dashArray": 1,
+                                "fillColor": color,
+                                "stroke": True,
+                                "fill": True
+                            }
+
+                            descripcion = feature["properties"].get("Des_PRP1", "Sin descripción disponible.")
+                            resumido = feature["properties"].get("Resum_PRP1", "Sin resumen disponible.")
+                            from datetime import datetime
+                            
+                            def formatear_fecha(fecha):
+                                """Convierte una fecha ISO en formato DD-MM-YY HH:MM o devuelve 'Desconocida' si es inválida."""
+                                try:
+                                    dt = datetime.fromisoformat(fecha)
+                                    return dt.strftime("%d-%m-%y %H:%M")
+                                except (ValueError, TypeError):
+                                    return "Desconocida"
+                            
+                            fecha_expiracion = formatear_fecha(feature["properties"].get("Expire_PRP1"))
+                            fecha_inicio = formatear_fecha(feature["properties"].get("Onset_PRP1"))
+
+                            feature["properties"]["description"] = (
+                                f"<b>Resumen:</b> {resumido}<br>"
+                                f"<b>Descripción:</b> {descripcion}<br>"
+                                f"<b>Fecha de inicio:</b> {fecha_inicio}<br>"
+                                f"<b>Fecha de expiración:</b> {fecha_expiracion}<br>"
+                                f"<b>Zona:</b> {zona}<br><br>"
+                                f"<b>⚠️ Advertencia:</b> {mensaje_advertencia}"
+                            )
+
+                            feature["properties"].pop("style", None)
+                            geojson_combinado["features"].append(feature)
 
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
         json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
