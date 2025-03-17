@@ -1,10 +1,9 @@
+
 import json
 import os
 import shutil
 import requests
 import tarfile
-from datetime import datetime
-import iso8601
 
 # Definir la variable para forzar actualización
 FORZAR_ACTUALIZACION = True  # Puedes cambiarlo a False si no quieres forzar
@@ -23,7 +22,7 @@ SALIDA_GEOJSON = "avisos_espana.geojson"
 
 # Definir colores según el nivel de aviso
 COLORS = {
-    "Amarillo": "#FFFF0080",  # Amarillo
+    "Amarillo": "#FFFF00",  # Amarillo
     "Naranja": "#FFA500",  # Naranja
     "Rojo": "#FF0000"      # Rojo
 }
@@ -68,16 +67,16 @@ def procesar_geojson():
     def formatear_fecha(fecha):
         """Convierte una fecha ISO en formato DD-MM-YY HH:MM o devuelve 'Desconocida' si es inválida."""
         try:
-            dt = iso8601.parse_date(fecha)
+            dt = datetime.fromisoformat(fecha)
             return dt.strftime("%d-%m-%y %H:%M")
-        except (iso8601.ParseError, TypeError):
+        except (ValueError, TypeError):
             return "Desconocida"
     
     def obtener_fecha_dt(fecha):
         """Convierte una fecha ISO a datetime o devuelve None si es inválida."""
         try:
-            return iso8601.parse_date(fecha)
-        except (iso8601.ParseError, TypeError):
+            return datetime.fromisoformat(fecha)
+        except (ValueError, TypeError):
             return None
 
     for root, _, files in os.walk(EXTRACT_PATH):
