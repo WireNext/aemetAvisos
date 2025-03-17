@@ -142,6 +142,11 @@ def procesar_geojson():
                             onset_prp2 = formatear_fecha(feature["properties"].get("Onset_PRP2"))
                             expire_prp2 = formatear_fecha(feature["properties"].get("Expire_PRP2"))
 
+                            descripcion_nenv = feature["properties"].get("Des_NENV")
+                            resumido_nenv = feature["properties"].get("Resum_NENV")
+                            onset_nenv = formatear_fecha(feature["properties"].get("Onset_NENV"))
+                            expire_nenv = formatear_fecha(feature["properties"].get("Expire_NENV"))
+
                             description_parts = []
                             if resumido_prp1:
                                 description_parts.append(f"<b>Resumen:</b> {resumido_prp1}<br>")
@@ -159,6 +164,14 @@ def procesar_geojson():
                                 description_parts.append(f"<b>Fecha de inicio:</b> {onset_prp2}<br>")
                             if expire_prp2 != "Desconocida":
                                 description_parts.append(f"<b>Fecha de expiración:</b> {expire_prp2}<br><br>")
+                            if resumido_nenv:
+                                description_parts.append(f"<b>Resumen:</b> {resumido_nenv}<br>")
+                            if descripcion_nenv:
+                                description_parts.append(f"<b>Descripción:</b> {descripcion_nenv}<br>")
+                            if onset_nenv != "Desconocida":
+                                description_parts.append(f"<b>Fecha de inicio:</b> {onset_nenv}<br>")
+                            if expire_nenv != "Desconocida":
+                                description_parts.append(f"<b>Fecha de expiración:</b> {expire_nenv}<br><br>")
                             description_parts.append(f"<b>Zona:</b> {zona}<br><br>")
                             description_parts.append(f"<b>⚠️ Advertencia:</b> {mensaje_advertencia}")
 
