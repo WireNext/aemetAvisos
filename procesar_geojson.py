@@ -1,4 +1,3 @@
-
 import json
 import os
 import shutil
@@ -67,17 +66,11 @@ def procesar_geojson():
     def formatear_fecha(fecha):
         """Convierte una fecha ISO en formato DD-MM-YY HH:MM o devuelve 'Desconocida' si es inválida."""
         try:
+            from datetime import datetime
             dt = datetime.fromisoformat(fecha)
             return dt.strftime("%d-%m-%y %H:%M")
         except (ValueError, TypeError):
             return "Desconocida"
-    
-    def obtener_fecha_dt(fecha):
-        """Convierte una fecha ISO a datetime o devuelve None si es inválida."""
-        try:
-            return datetime.fromisoformat(fecha)
-        except (ValueError, TypeError):
-            return None
 
     for root, _, files in os.walk(EXTRACT_PATH):
         for file in files:
@@ -139,41 +132,46 @@ def procesar_geojson():
                                 "fill": True
                             }
 
-                            alertas = []
-                            if feature["properties"].get("Onset_PRP1"):
-                                alertas.append({
-                                    "resumen": feature["properties"].get("Resum_PRP1"),
-                                    "descripcion": feature["properties"].get("Des_PRP1"),
-                                    "inicio": obtener_fecha_dt(feature["properties"].get("Onset_PRP1")),
-                                    "fin": obtener_fecha_dt(feature["properties"].get("Expire_PRP1"))
-                                })
-                            if feature["properties"].get("Onset_PRP2"):
-                                alertas.append({
-                                    "resumen": feature["properties"].get("Resum_PRP2"),
-                                    "descripcion": feature["properties"].get("Des_PRP2"),
-                                    "inicio": obtener_fecha_dt(feature["properties"].get("Onset_PRP2")),
-                                    "fin": obtener_fecha_dt(feature["properties"].get("Expire_PRP2"))
-                                })
-                            if feature["properties"].get("Onset_NENV"):
-                                alertas.append({
-                                    "resumen": feature["properties"].get("Resum_NENV"),
-                                    "descripcion": feature["properties"].get("Des_NENV"),
-                                    "inicio": obtener_fecha_dt(feature["properties"].get("Onset_NENV")),
-                                    "fin": obtener_fecha_dt(feature["properties"].get("Expire_NENV"))
-                                })
+                            descripcion_prp1 = feature["properties"].get("Des_PRP1")
+                            resumido_prp1 = feature["properties"].get("Resum_PRP1")
+                            onset_prp1 = formatear_fecha(feature["properties"].get("Onset_PRP1"))
+                            expire_prp1 = formatear_fecha(feature["properties"].get("Expire_PRP1"))
                             
-                            alertas_ordenadas = sorted(alertas, key=lambda x: x["inicio"] if x["inicio"] else datetime.max)
-                            
+                            descripcion_prp2 = feature["properties"].get("Des_PRP2")
+                            resumido_prp2 = feature["properties"].get("Resum_PRP2")
+                            onset_prp2 = formatear_fecha(feature["properties"].get("Onset_PRP2"))
+                            expire_prp2 = formatear_fecha(feature["properties"].get("Expire_PRP2"))
+
+                            descripcion_nenv = feature["properties"].get("Des_NENV")
+                            resumido_nenv = feature["properties"].get("Resum_NENV")
+                            onset_nenv = formatear_fecha(feature["properties"].get("Onset_NENV"))
+                            expire_nenv = formatear_fecha(feature["properties"].get("Expire_NENV"))
+
                             description_parts = []
-                            for alerta in alertas_ordenadas:
-                                if alerta["resumen"]:
-                                    description_parts.append(f"<b>Resumen:</b> {alerta['resumen']}<br>")
-                                if alerta["descripcion"]:
-                                    description_parts.append(f"<b>Descripción:</b> {alerta['descripcion']}<br>")
-                                if alerta["inicio"]:
-                                    description_parts.append(f"<b>Fecha de inicio:</b> {alerta['inicio'].strftime('%d-%m-%y %H:%M')}<br>")
-                                if alerta["fin"]:
-                                    description_parts.append(f"<b>Fecha de expiración:</b> {alerta['fin'].strftime('%d-%m-%y %H:%M')}<br><br>")
+                            if resumido_prp1:
+                                description_parts.append(f"<b>Resumen:</b> {resumido_prp1}<br>")
+                            if descripcion_prp1:
+                                description_parts.append(f"<b>Descripción:</b> {descripcion_prp1}<br>")
+                            if onset_prp1 != "Desconocida":
+                                description_parts.append(f"<b>Fecha de inicio:</b> {onset_prp1}<br>")
+                            if expire_prp1 != "Desconocida":
+                                description_parts.append(f"<b>Fecha de expiración:</b> {expire_prp1}<br><br>")
+                            if resumido_prp2:
+                                description_parts.append(f"<b>Resumen:</b> {resumido_prp2}<br>")
+                            if descripcion_prp2:
+                                description_parts.append(f"<b>Descripción:</b> {descripcion_prp2}<br>")
+                            if onset_prp2 != "Desconocida":
+                                description_parts.append(f"<b>Fecha de inicio:</b> {onset_prp2}<br>")
+                            if expire_prp2 != "Desconocida":
+                                description_parts.append(f"<b>Fecha de expiración:</b> {expire_prp2}<br><br>")
+                            if resumido_nenv:
+                                description_parts.append(f"<b>Resumen:</b> {resumido_nenv}<br>")
+                            if descripcion_nenv:
+                                description_parts.append(f"<b>Descripción:</b> {descripcion_nenv}<br>")
+                            if onset_nenv != "Desconocida":
+                                description_parts.append(f"<b>Fecha de inicio:</b> {onset_nenv}<br>")
+                            if expire_nenv != "Desconocida":
+                                description_parts.append(f"<b>Fecha de expiración:</b> {expire_nenv}<br><br>")
                             description_parts.append(f"<b>Zona:</b> {zona}<br><br>")
                             description_parts.append(f"<b>⚠️ Advertencia:</b> {mensaje_advertencia}")
 
@@ -185,7 +183,6 @@ def procesar_geojson():
     with open(SALIDA_GEOJSON, "w", encoding="utf-8") as f:
         json.dump(geojson_combinado, f, ensure_ascii=False, indent=4)
     print(f"✅ GeoJSON procesado y guardado en {SALIDA_GEOJSON}.")
-
 
 if __name__ == "__main__":
     descargar_tar()
