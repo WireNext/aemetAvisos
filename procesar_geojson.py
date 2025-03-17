@@ -132,28 +132,37 @@ def procesar_geojson():
                                 "fill": True
                             }
 
-                            descripcion_prp1 = feature["properties"].get("Des_PRP1", "Sin descripción disponible.")
-                            resumido_prp1 = feature["properties"].get("Resum_PRP1", "Sin resumen disponible.")
+                            descripcion_prp1 = feature["properties"].get("Des_PRP1")
+                            resumido_prp1 = feature["properties"].get("Resum_PRP1")
                             onset_prp1 = formatear_fecha(feature["properties"].get("Onset_PRP1"))
                             expire_prp1 = formatear_fecha(feature["properties"].get("Expire_PRP1"))
                             
-                            descripcion_prp2 = feature["properties"].get("Des_PRP2", "Sin descripción disponible.")
-                            resumido_prp2 = feature["properties"].get("Resum_PRP2", "Resumen no disponible.")
+                            descripcion_prp2 = feature["properties"].get("Des_PRP2")
+                            resumido_prp2 = feature["properties"].get("Resum_PRP2")
                             onset_prp2 = formatear_fecha(feature["properties"].get("Onset_PRP2"))
                             expire_prp2 = formatear_fecha(feature["properties"].get("Expire_PRP2"))
 
-                            feature["properties"]["description"] = (
-                                f"<b>Resumen:</b> {resumido_prp1}<br>"
-                                f"<b>Descripción:</b> {descripcion_prp1}<br>"
-                                f"<b>Fecha de inicio:</b> {onset_prp1}<br>"
-                                f"<b>Fecha de expiración:</b> {expire_prp1}<br><br>"
-                                f"<b>Resumen:</b> {resumido_prp2}<br>"
-                                f"<b>Descripción:</b> {descripcion_prp2}<br>"
-                                f"<b>Fecha de inicio:</b> {onset_prp2}<br>"
-                                f"<b>Fecha de expiración:</b> {expire_prp2}<br><br>"
-                                f"<b>Zona:</b> {zona}<br><br>"
-                                f"<b>⚠️ Advertencia:</b> {mensaje_advertencia}"
-                            )
+                            description_parts = []
+                            if resumido_prp1:
+                                description_parts.append(f"<b>Resumen:</b> {resumido_prp1}<br>")
+                            if descripcion_prp1:
+                                description_parts.append(f"<b>Descripción:</b> {descripcion_prp1}<br>")
+                            if onset_prp1 != "Desconocida":
+                                description_parts.append(f"<b>Fecha de inicio:</b> {onset_prp1}<br>")
+                            if expire_prp1 != "Desconocida":
+                                description_parts.append(f"<b>Fecha de expiración:</b> {expire_prp1}<br><br>")
+                            if resumido_prp2:
+                                description_parts.append(f"<b>Resumen:</b> {resumido_prp2}<br>")
+                            if descripcion_prp2:
+                                description_parts.append(f"<b>Descripción:</b> {descripcion_prp2}<br>")
+                            if onset_prp2 != "Desconocida":
+                                description_parts.append(f"<b>Fecha de inicio:</b> {onset_prp2}<br>")
+                            if expire_prp2 != "Desconocida":
+                                description_parts.append(f"<b>Fecha de expiración:</b> {expire_prp2}<br><br>")
+                            description_parts.append(f"<b>Zona:</b> {zona}<br><br>")
+                            description_parts.append(f"<b>⚠️ Advertencia:</b> {mensaje_advertencia}")
+
+                            feature["properties"]["description"] = "".join(description_parts)
 
                             feature["properties"].pop("style", None)
                             geojson_combinado["features"].append(feature)
