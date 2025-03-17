@@ -23,7 +23,7 @@ SALIDA_GEOJSON = "avisos_espana.geojson"
 
 # Definir colores según el nivel de aviso
 COLORS = {
-    "Amarillo": "#FFFF00",  # Amarillo
+    "Amarillo": "#FFFF0080",  # Amarillo
     "Naranja": "#FFA500",  # Naranja
     "Rojo": "#FF0000"      # Rojo
 }
