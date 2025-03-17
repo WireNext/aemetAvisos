@@ -138,7 +138,7 @@ def procesar_geojson():
                             expire_prp1 = formatear_fecha(feature["properties"].get("Expire_PRP1"))
                             
                             descripcion_prp2 = feature["properties"].get("Des_PRP2", "Sin descripción disponible.")
-                            valor_prp2 = feature["properties"].get("Valor_PRP2", "Valor no disponible.")
+                            resumido_prp2 = feature["properties"].get("Resum_PRP2", "Resumen no disponible.")
                             onset_prp2 = formatear_fecha(feature["properties"].get("Onset_PRP2"))
                             expire_prp2 = formatear_fecha(feature["properties"].get("Expire_PRP2"))
 
@@ -147,10 +147,10 @@ def procesar_geojson():
                                 f"<b>Descripción:</b> {descripcion_prp1}<br>"
                                 f"<b>Fecha de inicio:</b> {onset_prp1}<br>"
                                 f"<b>Fecha de expiración:</b> {expire_prp1}<br><br>"
-                                f"<b>Valor PRP2:</b> {valor_prp2}<br>"
-                                f"<b>Descripción PRP2:</b> {descripcion_prp2}<br>"
-                                f"<b>Inicio PRP2:</b> {onset_prp2}<br>"
-                                f"<b>Expiración PRP2:</b> {expire_prp2}<br><br>"
+                                f"<b>Resumen:</b> {resumido_prp2}<br>"
+                                f"<b>Descripción:</b> {descripcion_prp2}<br>"
+                                f"<b>Fecha de inicio:</b> {onset_prp2}<br>"
+                                f"<b>Fecha de expiración:</b> {expire_prp2}<br><br>"
                                 f"<b>Zona:</b> {zona}<br><br>"
                                 f"<b>⚠️ Advertencia:</b> {mensaje_advertencia}"
                             )
