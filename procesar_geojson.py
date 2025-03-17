@@ -88,7 +88,7 @@ def procesar_geojson():
                         if zona not in niveles_maximos or nivel > niveles_maximos[zona]:
                             niveles_maximos[zona] = nivel
 
-    for root, _, files in os.walk(EXTRACT_PATH):
+      for root, _, files in os.walk(EXTRACT_PATH):
         for file in files:
             if file.endswith(".geojson"):
                 with open(os.path.join(root, file), "r", encoding="utf-8") as f:
@@ -123,8 +123,16 @@ def procesar_geojson():
                                 "fill": True
                             }
 
-                            descripcion = feature["properties"].get("Des_PRP1", "Sin descripción disponible.")
-                            resumido = feature["properties"].get("Resum_PRP1", "Sin resumen disponible.")
+                            descripcion_prp1 = feature["properties"].get("Des_PRP1", "Sin descripción disponible.")
+                            resumido_prp1 = feature["properties"].get("Resum_PRP1", "Sin resumen disponible.")
+                            onset_prp1 = formatear_fecha(feature["properties"].get("Onset_PRP1"))
+                            expire_prp1 = formatear_fecha(feature["properties"].get("Expire_PRP1"))
+                            
+                            descripcion_prp2 = feature["properties"].get("Des_PRP2", "Sin descripción disponible.")
+                            valor_prp2 = feature["properties"].get("Valor_PRP2", "Valor no disponible.")
+                            onset_prp2 = formatear_fecha(feature["properties"].get("Onset_PRP2"))
+                            expire_prp2 = formatear_fecha(feature["properties"].get("Expire_PRP2"))
+                            
                             from datetime import datetime
                             
                             def formatear_fecha(fecha):
@@ -134,15 +142,16 @@ def procesar_geojson():
                                     return dt.strftime("%d-%m-%y %H:%M")
                                 except (ValueError, TypeError):
                                     return "Desconocida"
-                            
-                            fecha_expiracion = formatear_fecha(feature["properties"].get("Expire_PRP1"))
-                            fecha_inicio = formatear_fecha(feature["properties"].get("Onset_PRP1"))
 
                             feature["properties"]["description"] = (
-                                f"<b>Resumen:</b> {resumido}<br>"
-                                f"<b>Descripción:</b> {descripcion}<br>"
-                                f"<b>Fecha de inicio:</b> {fecha_inicio}<br>"
-                                f"<b>Fecha de expiración:</b> {fecha_expiracion}<br>"
+                                f"<b>Resumen:</b> {resumido_prp1}<br>"
+                                f"<b>Descripción:</b> {descripcion_prp1}<br>"
+                                f"<b>Fecha de inicio:</b> {onset_prp1}<br>"
+                                f"<b>Fecha de expiración:</b> {expire_prp1}<br><br>"
+                                f"<b>Valor PRP2:</b> {valor_prp2}<br>"
+                                f"<b>Descripción PRP2:</b> {descripcion_prp2}<br>"
+                                f"<b>Inicio PRP2:</b> {onset_prp2}<br>"
+                                f"<b>Expiración PRP2:</b> {expire_prp2}<br><br>"
                                 f"<b>Zona:</b> {zona}<br><br>"
                                 f"<b>⚠️ Advertencia:</b> {mensaje_advertencia}"
                             )
